@@ -1,5 +1,5 @@
 #include<stdio.h>
-#include<stdlib>
+#include<stdlib.h>
 
 int main(){
   printf("hello world\n");
@@ -7,3 +7,4 @@ int main(){
   //  Test2
   printf("bonjour\n");
 }
+
