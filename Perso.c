@@ -3,6 +3,7 @@
 #include<math.h>
 #include<time.h>
 
+//Define icones
 typedef struct{
   int dmg;
   int hp;
@@ -17,6 +18,7 @@ typedef struct{
   int carry;
 }Defender;
 
+//Define icones
 typedef struct{
   int dmg;
   int hp;
@@ -31,6 +33,7 @@ typedef struct{
 }Attacker;
 
 // Function to create a new defender
+//Define icones for the defender 
 Defender* create_defender() {
 
     Defender* new_defender = (Defender*)malloc(sizeof(Defender));
@@ -71,6 +74,7 @@ Defender* create_defender() {
 }
 
 // Function to create a new attacker
+//Define icones for the attacker
 Attacker* create_attacker(){
 
     Attacker* new_attacker = (Attacker*)malloc(sizeof(Attacker));
