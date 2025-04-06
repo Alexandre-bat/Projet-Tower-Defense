@@ -1,0 +1,7 @@
+Génération aléatoire de carte avec toutes les conditions dépendantes de l'utilisateur
+
+Difficultés :
+
+-Création du chemin de manière procédurale (gauche, droite).
+-Fin sur le END généré aléatoirement.
+
