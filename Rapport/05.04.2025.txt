@@ -1,0 +1,10 @@
+Génération aléatoire de carte avec toutes les conditions dépendantes de l'utilisateur
+
+Difficultés :
+
+-Incompréhension de la bibliothèque SDL
+-Problèmes d’implémentation des headers
+-Génération d’un carré parfait respectant le quadrillage affiché
+-Création du chemin de manière procédurale
+
+
