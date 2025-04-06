@@ -68,9 +68,9 @@ Defender* create_defender() {
       if (scanf("%d", &new_defender->type) != 1) {
           printf("Invalid input. Please enter a number.\n");
           while(getchar() != '\n'); // Clear the input buffer
+          new_defender->type = -1; // Set an invalid value to ensure the loop continues
           continue;
       }
-      
       if (new_defender->type == 0) {
           printf("You chose Melee defender.\n");
           new_defender->carry = 1;
