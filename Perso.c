@@ -65,6 +65,7 @@ Defender* create_defender() {
     printf("1. Type of defender is range\n");
 
     while (1) {
+      //Not character input
       if (scanf("%d", &new_defender->type) != 1) {
           printf("Invalid input. Please enter a number.\n");
           while(getchar() != '\n'); // Clear the input buffer
@@ -81,6 +82,7 @@ Defender* create_defender() {
           break;
       } else {
           printf("Invalid defender type. Try again.\n");
+          while(getchar() != '\n');
       }
   }
   return new_defender;
@@ -140,8 +142,13 @@ int main(){
 
   Defender* defender = create_defender();
   show_defender(defender);
+  //create a new visualisation for each lvl with money
+
+  printf("\n\n");
+
   Attacker* attacker = create_attacker();
   show_attacker(attacker);
+  //create a new visualisation for each lvl
 
   free(defender);
   free(attacker);
