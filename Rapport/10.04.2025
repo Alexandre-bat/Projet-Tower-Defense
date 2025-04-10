@@ -4,3 +4,10 @@ Ajout du fichier main
 Difficultés:
 -erreur de segmentation et debug dans la génératuion du tableau
 -clear le terminal et mettre des pauses entre les frames
+
+
+POUR LA PROCHAINE FOIS :
+-Au moins pouvoir afficher le tableau et faire avancer un crabe jusqu'à la couronne.
+-Créer des fonctions d'actualisations avec en paramètre le tableau de la map à l'instant t :
+    *Ajouter singe en fonction des coordonées
+    *faire avancer crabes à l'uinstant t+1
