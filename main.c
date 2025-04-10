@@ -17,7 +17,7 @@ int main() {
 
         //--------
 	
-		    time += 1;
+		time += 1;
     		sleep(1);
     		system("clear");
     	}
