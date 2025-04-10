@@ -1,0 +1,6 @@
+Ajustement de la carte et du chemin en utilisant un tableau 2D
+Ajout du fichier main
+
+Difficultés:
+-erreur de segmentation et debug dans la génératuion du tableau
+-clear le terminal et mettre des pauses entre les frames
