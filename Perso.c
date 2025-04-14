@@ -22,18 +22,6 @@ typedef struct{
   int level;
 }Attacker;
 
-typedef struct{
-  //Skins for the attacker
-  char skin1[50];
-  char skin2[50];
-  char skin3[50];
-  char skin4[50];
-  //Skins for the defender
-  char skin5[50];
-  char skin6[50];
-  char skin7[50];
-}Visualisation;
-
 // Function to create a new defender
 //Define icones for the defender 
 Defender* create_defender() {
@@ -121,10 +109,6 @@ void MakeMoney(int* money, Attacker* t, int coef){
 
 
 
-
-
-
-
 int main(){
   srand(time(NULL));
   int money = 0;
@@ -145,9 +129,6 @@ int main(){
   
   MakeWave(wave,SizeMap, TabAtt, coef);
   MakeMoney(&money,TabAtt,coef);
-  
-  
-  
   free(TabAtt);	
   free(defender);
   free(attacker);

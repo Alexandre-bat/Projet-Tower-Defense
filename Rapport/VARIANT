@@ -1,1 +1,12 @@
 DIR RIGHT ,DIM RAND, END USER MILTI 
+
+Variante DIR_RIGHT : la case de départ est située à gauche, et
+la couronne à droite de la carte.
+
+Variante DIM_RAND : les dimensions initiales de la carte sont
+des valeurs générées aléatoirement.
+
+Variante END_USER_MULTI : la partie se termine lorsque le
+roi des singes n’a plus de points de vie. Chaque crabe qui
+atteint la couronne fait perdre 1 point de vie. Le nombre de
+points de vie est fixé par l’utilisateur en début de partie.
