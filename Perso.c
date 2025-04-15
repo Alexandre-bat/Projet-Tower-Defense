@@ -1,22 +1,19 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h> // For strcpy
-#include<math.h>
-#include<time.h>
+#include "all.h"
 
-//Define icones
+typedef struct {
+  int x;
+  int y;
+} Position;
+
 typedef struct{
-  char skin[50];
+  Position pos;
   int dmg;
   int mana;
   int level;
-  int type;
-  int carry;
 }Defender;
 
-//Define icones
 typedef struct{
-  char skin[50];
+  Position pos;
   int dmg;
   int hp;
   int level;
@@ -33,39 +30,10 @@ Defender* create_defender() {
         return NULL;
     }
 
-    strcpy(new_defender->skin, "\xE2\x9D\x95"); // Example skin, you can change it to any other skin you want
     new_defender->mana = 0;
     new_defender->level = 1;
+    new_defender->dmg = 3;
 
-    printf("Select type of defender?\n");
-    printf("Choissisez le type de defenseur de type \n");
-    printf("0. Type of defender is melee\n");
-    printf("1. Type of defender is range\n");
-
-    while (1) {
-    //Char input
-      if (scanf("%d", &new_defender->type) != 1) {
-          printf("Invalid input. Please enter a number.\n");
-          while(getchar() != '\n'); // Clear the input buffer
-          new_defender->type = -1; // Set an invalid value to ensure the loop continues
-          continue;
-      }
-      //Int input
-      if (new_defender->type == 0) {
-          printf("You chose Melee defender.\n");
-          new_defender->carry = 1;
-          new_defender->dmg = 5;
-          break;
-      } else if (new_defender->type == 1) {
-          printf("You chose Range defender.\n");
-          new_defender->dmg = 2;
-          break;
-      } else {
-          printf("Invalid defender type. Try again.\n");
-          while(getchar() != '\n');
-          continue;
-      }
-  }
   return new_defender;
 }
 
@@ -80,9 +48,8 @@ Attacker* create_attacker(){
         return NULL;
     }
 
-    strcpy(new_attacker->skin,"\xE2\x9D\x8C");
     new_attacker->dmg = 1;
-    new_attacker->hp = 10;
+    new_attacker->hp = 6;
     new_attacker->level = 1;
     return new_attacker;
 }

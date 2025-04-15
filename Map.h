@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <stdbool.h>
+#include<math.h>
+#include<time.h>
+// oppen the file before run the code
 
-void generatePath() {
+int** generatePath() {
     int size;
 
     printf("What is the size of the map ( 11 - 99)? : ");
@@ -84,17 +87,7 @@ void generatePath() {
         printf("\n");
     }
 
+    return grid;
+
 }
 
-int main() {
-    srand(time(NULL)); // Initialisation de la graine pour les nombres aléatoires
-    generatePath();
-
-    // Libération de la mémoire
-    for (int i = 0; i < size; i++) {
-        free(grid[i]);
-    }
-    free(grid);
-
-    return 0;
-}

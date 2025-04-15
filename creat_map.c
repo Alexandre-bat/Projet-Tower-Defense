@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
+#include "all.h"
 
 void creat_map(){
     int SIZE, START, END, count=0, n=0,k=0,d=0,l,tmp;
