@@ -1,4 +1,8 @@
-#include "all.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include<math.h>
+#include<time.h>
 
 typedef struct {
   int x;
@@ -52,26 +56,6 @@ Attacker* create_attacker(){
     new_attacker->hp = 6;
     new_attacker->level = 1;
     return new_attacker;
-}
-
-void MakeWave(int wave, int Size, Attacker* t, int x){
-	int coef = Size*wave;
-	Attacker* tab =(Attacker*)malloc(coef*sizeof(Attacker));
-	
-	for(int i = 0; i<coef; i++){
-		*(tab+i) = *(create_attacker());
-	}
-	t = tab;
-}
-
-void MakeMoney(int* money, Attacker* t, int coef){
-	
-	for(int i = 0; i<coef; i++){
-		if((t+i)->hp <= 0){
-			money = money + t[i].level;
-			//Free the space when the Attacker is dead
-		}
-	}
 }
 
 

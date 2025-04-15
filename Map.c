@@ -3,22 +3,10 @@
 #include <stdbool.h>
 #include<math.h>
 #include<time.h>
+#include <windows.h>
 // oppen the file before run the code
 
-int** generatePath() {
-    int size;
-
-    printf("What is the size of the map ( 11 - 99)? : ");
-    scanf("%d", &size);
-    if (size < 11 || size > 99) {
-        printf("Size must be between 11 and 99.\n");
-        exit(1);
-    }
-
-    if (size <= 0) {
-        printf("Size must be postive.\n");
-        exit(1);
-    }
+int** generatePath(int size) {
 
     int** grid = malloc(size * sizeof(int*));
     for (int i = 0; i < size; i++) {
@@ -75,19 +63,54 @@ int** generatePath() {
         }
     }
 
-    // Affichage de la grille
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            if (grid[i][j] == 1) {
-                printf("0");
-            } else {
-                printf(".");
-            }
-        }
-        printf("\n");
-    }
-
     return grid;
 
 }
 
+void showPath(int** grid, int size) {
+
+    printf("O  ");
+    for (int i = 1; i < 10; i++){
+        printf("%.2d  ",i);
+    }
+    for (int i = 10; i < size+1; i++){
+        printf("%.2d  ",i);
+    }
+
+    SetConsoleOutputCP(65001);
+    for (int i = 0; i < size; i++) {
+        printf("\n%.2d ",i+1);
+        for (int j = 0; j < size; j++) {
+            if (grid[i][j] == 1) {
+                printf("\xF0\x9F\x94\xB4  ");
+            } else {
+                printf("\xF0\x9F\x94\xB2  ");
+            }
+        }
+        printf("\n");
+    }
+}
+
+int main()
+{
+    int size;
+
+    printf("What is the size of the map ( 11 - 99)? : ");
+    scanf("%d", &size);
+    if (size < 11 || size > 99) {
+        printf("Size must be between 11 and 99.\n");
+        exit(1);
+    }
+
+    if (size <= 0) {
+        printf("Size must be postive.\n");
+        exit(1);
+    }
+
+    int** t = generatePath(size);
+    showPath(t, size);
+    
+    free(t);
+
+    return 0;
+}
