@@ -1,0 +1,5 @@
+Création d'une map de gauche à droite 
+Création d'une fonction pour positionner les singes
+
+Problèmes :
+    Le terminal bug et se bloque tous seul quand la fonction pour positionner les singes est appellée
