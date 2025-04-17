@@ -90,31 +90,51 @@ void posMonkey(int** map, int size) {
 }
 
 void posInitCrabs(int** map, int size, Attacker* crab) {
-    for(int i = 0; i < size; i++){
-        for(int j = 0; j < size; j++){
-            if(map[i][j] == 101){
-                map[i][j] = 10;
-                crab->pos.x = j;
-                crab->pos.y = i;
-                printf("Crab placed at (%d, %d)\n", crab->pos.x, crab->pos.y);
-                // Check if crab is placed on the path
-            }
+    for (int i = 0; i < size; i++) {
+        if (map[i][0] == 101 || map[i][0] == 1 ) {  // Check for starting point (101)
+            map[i][0] = 10;      // Place the crab (10)
+            crab->pos.x = 0;
+            crab->pos.y = i;
+            printf("Crab placed at (%d, %d)\n", crab->pos.x, crab->pos.y);
+            return;
+        } else if (map[i][0] == 10) {  // If position already has a crab
+            continue;
         }
     }
+    printf("No valid starting point for crab.\n");
 }
 
 void mooveCrabs(int** map, int size, Attacker* crab) {
-    if(crab->pos.x+1 == 1 && crab->pos.y+1 == 0 && crab->pos.y-1 == 0){
-        map[crab->pos.y][crab->pos.x] = 1;
+    int x = crab->pos.x;
+    int y = crab->pos.y;
+
+    // Check right
+    if (x + 1 < size && map[y][x + 1] == 1) {
+        map[y][x] = 1;
         crab->pos.x += 1;
-        map[crab->pos.y][crab->pos.x] = 10;
-    }else if(crab->pos.x+1 == 0 && crab->pos.y+1 == 1 && crab->pos.y-1 == 0){
-        map[crab->pos.y][crab->pos.x] = 1;
+    }
+    // Check down
+    else if (y + 1 < size && map[y + 1][x] == 1) {
+        map[y][x] = 1;
         crab->pos.y += 1;
-        map[crab->pos.y][crab->pos.x] = 10;
-    }else if(crab->pos.y+1 == 0 && crab->pos.x+1 == 0 && crab->pos.x-1 == 1){
-        map[crab->pos.y][crab->pos.x] = 1;
+    }
+    // Check up
+    else if (y - 1 >= 0 && map[y - 1][x] == 1) {
+        map[y][x] = 1;
         crab->pos.y -= 1;
+    }
+    // Check left (if somehow needed)
+    else if (x - 1 >= 0 && map[y][x - 1] == 1) {
+        map[y][x] = 1;
+        crab->pos.x -= 1;
+    }
+
+    // If previous position was a starting point (101), restore it
+    if (map[y][x] == 1 && x == 0) {
+        map[y][x] = 101;
+    }
+    // Update crab position on map
+    if (map[crab->pos.y][crab->pos.x] != 10) {
         map[crab->pos.y][crab->pos.x] = 10;
     }
 }
@@ -251,7 +271,7 @@ int main()
     for( int i = 0; i < 3; i++){
         
         showPath(t, size);
-        posMonkey(t, size);
+        //posMonkey(t, size);
         crab[i] = create_attacker();
         for(int j = 0; j < i; j++){
             mooveCrabs(t, size, crab[j]);

@@ -1,0 +1,4 @@
+Maintenant les crabes avances et il y avait aussi un problème de superpasition mais cela à été réglé
+Pour la suite il faudra faire les dégat quand un crabe est dans la zone d'un défenseur
+Et que le programme se déroule jusqu'a la condition de victoire( il faudrat utiliser calloc je pense )
+De plus quand un crabe meurt il disparait du tableau et il donne de l'argent pour améliorer les singes ( faire fonction qui améliorer les singes )
