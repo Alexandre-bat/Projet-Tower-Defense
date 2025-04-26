@@ -165,7 +165,11 @@ int** generatePath(int* nbsp) {
         printf("Erreur memory allocation.\n");
         exit(1);
     }
-    int currentRow = size / 2; // Commence au milieu de la grille
+    int currentRow = rand()%size; // Choisir une ligne aléatoire pour commencer
+    if (currentRow == 0) {
+        currentRow = 1; // Assurez-vous que la ligne est au moins 1
+    }
+
     int lastDirection = 0; // 0: tout droit, 1: haut, 2: bas
 
     // Initialisation de la grille avec des espaces vides
