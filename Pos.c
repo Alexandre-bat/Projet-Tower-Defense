@@ -268,17 +268,17 @@ int main()
             return 1;
         }
 
-    for( int i = 0; i < 3; i++){
+    for( int i = 0; i < 10; i++){
         
         showPath(t, size);
-        //posMonkey(t, size);
+        posMonkey(t, size);
         crab[i] = create_attacker();
         for(int j = 0; j < i; j++){
             mooveCrabs(t, size, crab[j]);
         }
         posInitCrabs(t, size, crab[i]);
         mooveCrabs(t, size, crab[i]);
-        //system("cls"); for clearing the console
+        system("cls"); //for clearing the console
     }
 
 
