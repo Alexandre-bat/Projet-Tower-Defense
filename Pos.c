@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include<math.h>
 #include<time.h>
-#include <windows.h> // For Windows console color
 
 typedef struct {
     int x;
@@ -54,39 +53,54 @@ Attacker* create_attacker(){
     }
 
     new_attacker->dmg = 1;
-    new_attacker->hp = 6;
+    new_attacker->hp = 1;
     new_attacker->level = 1;
     return new_attacker;
 }
 
 void posMonkey(int** map, int size) {
-    int x,y;
-    printf("Enter the position of the monkey (x): ");
-    scanf("%d", &x);
-    x-=1;
-    if (x <= 0 || x >= size) {
-        printf("Position must be between 0 and %d.\n", size-1);
-        return;
-    }
-    printf("Enter the position of the monkey (y): ");
-    scanf("%d",&y);
-    y-=1;
-    if (y <= 0 || y >= size) {
-        printf("Position must be between 0 and %d.\n", size-1);
-        exit(1);
-    }
-    if (map[y][x] == 1 || map[y][x] == 2) {
-        printf("Position must be empty.\n");
-        exit(1);
-    }
-    if (map[y-1][x] == 1 || map[y+1][x] == 1 || map[y][x-1] == 1 || map[y][x+1] == 1) {
-        map[y][x] = 2; // 2 represents the monkey
-        printf("Monkey placed at (%d, %d)\n", x, y);
-    }
-    else {
-        printf("Monkey cannot be placed here.\n");
-        exit(1);
-    }
+	int x,y;
+	printf("Enter the position of the monkey (x): ");
+	scanf("%d", &x);
+	x-=1;
+	if (x < 1 || x > size-1) {
+		printf("Position must be between 2 and %d.\n", size-1);
+		posMonkey(map, size);
+	}
+	printf("Enter the position of the monkey (y): ");
+	scanf("%d",&y);
+	y-=1;
+	if (y < 0 || y > size) {
+		printf("Position must be between 1 and %d.\n", size);
+		posMonkey(map, size);
+	}
+	if (map[y][x] == 1 || map[y][x] == 2) {
+		printf("Can't put a monkey here\n");
+		posMonkey(map, size);
+	}
+
+	// check if y-1 or y+1 are out of the memory allocation
+	if (y-1 < 0) {
+		if (map[y+1][x] == 1 || map[y][x-1] == 1 || map[y][x+1] == 1) {
+			map[y][x] = 2; // 2 represents the monkey
+			printf("Monkey placed at (%d, %d)\n", x, y);
+		}
+	else if (y+1 > size-1) {
+		if (map[y-1][x] == 1 || map[y][x-1] == 1 || map[y][x+1] == 1) {
+			map[y][x] = 2; // 2 represents the monkey
+			printf("Monkey placed at (%d, %d)\n", x, y);
+		}
+	}
+	} else {
+
+		if (map[y-1][x] == 1 || map[y+1][x] == 1 || map[y][x-1] == 1 || 			map[y][x+1] == 1) {
+			map[y][x] = 2; // 2 represents the monkey
+			printf("Monkey placed at (%d, %d)\n", x, y);
+		} else {
+			printf("Monkey cannot be placed here.\n");
+			exit(1);
+		}
+	}
 }
 
 void posInitCrabs(int** map, int size, Attacker* crab) {
@@ -231,7 +245,6 @@ void showPath(int** grid, int size) {
         printf("%.2d  ",i);
     }
 
-    SetConsoleOutputCP(65001);
     for (int i = 0; i < size; i++) {
         printf("\n%.2d ",i+1);
         for (int j = 0; j < size; j++) {
@@ -260,8 +273,8 @@ int main()
     srand(time(NULL));  // Initialize random seed
     int size;
 
-    int** t = generatePath(&size);
-    if (t == NULL) {
+    int** map = generatePath(&size);
+    if (map == NULL) {
         printf("Memory allocation failed\n");
         return 1;
     }
@@ -274,21 +287,21 @@ int main()
 
     for( int i = 0; i < 10; i++){
         
-        showPath(t, size);
-        posMonkey(t, size);
+        showPath(map, size);
+        posMonkey(map, size);
         crab[i] = create_attacker();
         for(int j = 0; j < i; j++){
-            mooveCrabs(t, size, crab[j]);
+            mooveCrabs(map, size, crab[j]);
         }
-        posInitCrabs(t, size, crab[i]);
-        mooveCrabs(t, size, crab[i]);
+        posInitCrabs(map, size, crab[i]);
+        mooveCrabs(map, size, crab[i]);
         system("cls"); //for clearing the console
     }
 
 
     for (int i = 0; i < size; i++) {
-        free(t[i]);
+        free(map[i]);
     }
-    free(t);
+    free(map);
     return 0;
 }
