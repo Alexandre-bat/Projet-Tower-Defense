@@ -59,13 +59,14 @@ Attacker* create_attacker(){
 }
 
 void posMonkey(int** map, int size) {
-	int x,y;
+	int x, y;
 	printf("Enter the position of the monkey (x): ");
 	scanf("%d", &x);
 	x-=1;
 	if (x < 1 || x > size-1) {
 		printf("Position must be between 2 and %d.\n", size-1);
 		posMonkey(map, size);
+		return;
 	}
 	printf("Enter the position of the monkey (y): ");
 	scanf("%d",&y);
@@ -73,10 +74,12 @@ void posMonkey(int** map, int size) {
 	if (y < 0 || y > size) {
 		printf("Position must be between 1 and %d.\n", size);
 		posMonkey(map, size);
+		return;
 	}
 	if (map[y][x] == 1 || map[y][x] == 2) {
 		printf("Can't put a monkey here\n");
 		posMonkey(map, size);
+		return;
 	}
 
 	// check if y-1 or y+1 are out of the memory allocation
@@ -98,7 +101,8 @@ void posMonkey(int** map, int size) {
 			printf("Monkey placed at (%d, %d)\n", x, y);
 		} else {
 			printf("Monkey cannot be placed here.\n");
-			exit(1);
+			posMonkey(map, size);
+			return;
 		}
 	}
 }
