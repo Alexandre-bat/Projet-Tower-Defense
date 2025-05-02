@@ -272,13 +272,39 @@ void showPath(int** grid, int size) {
     }
 }
 
+void money(Attacker** c ;Defender** m; int* size_c; int* size_m; int* banana; int** map ){
+	
+	int x, y;
+	int m, n;
+	for( int i = 0 , i < *size_m , i++){
+		x = m[i].pos.x;
+		y = m[i].pos.y;
+		for( int j = 0 , j < *size_c , j++){
+		m = c[j].pos.x;
+		n = c[j].pos.y; 
+		if(x == m+1 || x == m+1 || y == n-1 || y == n-1){
+			c[j].hp -= m[i].dmg;
+			if( c[j].hp == 0 ){
+			map[m][n] == 1;
+			*banana += 1;
+			for (int k = j; i < *size_c - 1; k++) {
+        			c[k] = c[k + 1];
+    				}
+    			(*size_c)--
+			}
+			}
+		}
+}
+
 int main()
 {
     srand(time(NULL));  // Initialize random seed
     int size;
+    
+    int banana = 4;
 
-    int** map = generatePath(&size);
-    if (map == NULL) {
+    int** t = generatePath(&size);
+    if (t == NULL) {
         printf("Memory allocation failed\n");
         return 1;
     }
@@ -288,24 +314,32 @@ int main()
             printf("Memory allocation failed\n");
             return 1;
         }
+        
+    Defender** monkey = malloc(sizeof(Defender*) * size);
+        if (monkey == NULL) {
+            printf("Memory allocation failed\n");
+            return 1;
+        }
 
     for( int i = 0; i < 10; i++){
         
-        showPath(map, size);
-        posMonkey(map, size);
+        showPath(t, size);
+        //monkey[i] = posMonkey(t, size);
         crab[i] = create_attacker();
-        for(int j = 0; j < i; j++){
-            mooveCrabs(map, size, crab[j]);
+        posInitCrabs(t, size, crab[i]);
+        for(int j = 0; j <= i; j++){
+            if( crab[j] !='\n'){
+            	mooveCrabs(t, size, crab[j]);
+            }
         }
-        posInitCrabs(map, size, crab[i]);
-        mooveCrabs(map, size, crab[i]);
-        system("cls"); //for clearing the console
+        money(crab;monkey; int* size_c; int* size_m;*banana; t)
+        system("clear"); //for clearing the console
     }
 
 
     for (int i = 0; i < size; i++) {
-        free(map[i]);
+        free(t[i]);
     }
-    free(map);
+    free(t);
     return 0;
 }
