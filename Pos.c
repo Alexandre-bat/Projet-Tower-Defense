@@ -55,7 +55,7 @@ Attacker* create_attacker(){
     }
 
     new_attacker->dmg = 1;
-    new_attacker->hp = 1;
+    new_attacker->hp = 3;
     new_attacker->level = 1;
     return new_attacker;
 }
@@ -69,6 +69,7 @@ Defender* posMonkey(int** map, int size) {
 	if (x < 1 || x > size-1) {
 		printf("Position must be between 2 and %d.\n", size-1);
 		posMonkey(map, size);
+        printf("Error\n");
 		exit(1);
 	}
 	printf("Enter the position of the monkey (y): ");
@@ -77,27 +78,28 @@ Defender* posMonkey(int** map, int size) {
 	if (y < 0 || y > size) {
 		printf("Position must be between 1 and %d.\n", size);
 		posMonkey(map, size);
+        printf("Error\n");
 		exit(1);
 	}
 	if (map[y][x] == 1 || map[y][x] == 2) {
 		printf("Can't put a monkey here\n");
 		posMonkey(map, size);
+        printf("Error\n");
 		exit(1);
 	}
 
-	// check if y-1 or y+1 are out of the memory allocation
-	if (y-1 < 0) {
-		if (map[y+1][x] == 1 || map[y][x-1] == 1 || map[y][x+1] == 1) {
-			map[y][x] = 2; // 2 represents the monkey
-			printf("Monkey placed at (%d, %d)\n", x, y);
-		}
-	else if (y+1 > size-1) {
-		if (map[y-1][x] == 1 || map[y][x-1] == 1 || map[y][x+1] == 1) {
-			map[y][x] = 2; // 2 represents the monkey
-			printf("Monkey placed at (%d, %d)\n", x, y);
-		}
-	}
-	} else {
+    // check if y-1 or y+1 are out of the memory allocation
+    if (y-1 < 0) {
+        if (map[y+1][x] == 1 || map[y][x-1] == 1 || map[y][x+1] == 1) {
+            map[y][x] = 2; // 2 represents the monkey
+            printf("Monkey placed at (%d, %d)\n", x, y);
+        }
+    } else if (y+1 > size-1) {
+        if (map[y-1][x] == 1 || map[y][x-1] == 1 || map[y][x+1] == 1) {
+            map[y][x] = 2; // 2 represents the monkey
+            printf("Monkey placed at (%d, %d)\n", x, y);
+        }
+    } else {
 
 		if (map[y-1][x] == 1 || map[y+1][x] == 1 || map[y][x-1] == 1 || map[y][x+1] == 1) {
 			map[y][x] = 2; // 2 represents the monkey
@@ -105,6 +107,7 @@ Defender* posMonkey(int** map, int size) {
 		} else {
 			printf("Monkey cannot be placed here.\n");
 			posMonkey(map, size);
+            printf("Error\n");
 			exit(1);
 		}
 	}
@@ -172,11 +175,13 @@ int** generatePath(int* nbsp) {
     scanf("%d", &size);
     if (size < 11 || size > 99) {
         printf("Size must be between 11 and 99.\n");
+        printf("Error\n");
         exit(1);
     }
 
     if (size <= 0) {
         printf("Size must be postive.\n");
+        printf("Error\n");
         exit(1);
     }
 
@@ -188,6 +193,7 @@ int** generatePath(int* nbsp) {
     }
     if (grid == NULL) {
         printf("Erreur memory allocation.\n");
+        printf("Error\n");
         exit(1);
     }
     int currentRow = rand()%size; // Choisir une ligne aléatoire pour commencer
@@ -281,35 +287,37 @@ void showPath(int** grid, int size) {
 }
 
 void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, int** map) {
-    printf("Crabs size: %d\n", *size_c);
-    int e, f;
-    int o, n;
+    if (*size_c == 0 || *size_m == 0) return;
 
     for (int i = 0; i < *size_m; i++) {
-        e = p[i]->pos.x;
-        f = p[i]->pos.y;
+        if (p[i] == NULL) continue;  // ⚠️ Sécurité anti-crash
 
-        for (int j = 0; j < *size_c; ) {
-            o = c[j]->pos.x;
-            n = c[j]->pos.y;
-            int dx = abs(e - o); // Calculate the distance in x direction
-            int dy = abs(f - n); // Calculate the distance in y direction
-            // A REVOIR
-            printf("Monkey %d is at (%d, %d) and crab %d is at (%d, %d)\n", i, e, f, j, o, n);
+        int e = p[i]->pos.x;
+        int f = p[i]->pos.y;
+
+        int j = 0;
+        while (j < *size_c- 1) {
+            if (c[j] == NULL) { j++; continue; }  // ⚠️ Sécurité anti-crash
+
+            int o = c[j]->pos.x;
+            int n = c[j]->pos.y;
+            int dx = abs(e - o);
+            int dy = abs(f - n);
 
             if (dx <= 1 && dy <= 1) {
                 c[j]->hp -= p[i]->dmg;
-                printf("Crab %d is attacked by monkey; HP: %d\n", j, c[j]->hp);
-
+                printf("Crab %d is attacked by monkey %d; HP: %d\n", j, i, c[j]->hp);
                 if (c[j]->hp <= 0) {
                     map[n][o] = 1;
                     (*banana)++;
-                    // free(c[j]); // Uncomment if memory was allocated for each crab
+                    free(c[j]);
+                    c[j] = NULL; // Libération de la mémoire
                     for (int k = j; k < *size_c - 1; k++) {
                         c[k] = c[k + 1];
                     }
+                    c[*size_c - 1] = NULL; // Optionnel : nettoyage
                     (*size_c)--;
-                    continue; // re-check new c[j]
+                    continue;
                 }
             }
             j++;
@@ -317,13 +325,14 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
     }
 }
 
+
 void tree(int* banana, int* m, int** t, int size, Defender** monkey, int i) {
+    int none;
     if(*banana >= 2){
-        int size_m;
         printf("You have %d bananas\n", *banana);
         printf("Do you want to buy a monkey? (1 for yes, 0 for no): ");
-        scanf("%d", &size_m);
-        if(size_m == 1){
+        scanf("%d", &none);
+        if(none == 1){
             monkey[i] = posMonkey(t, size);
             *banana -= 2;
             (*m)++;
@@ -348,34 +357,43 @@ int main()
         return 1;
     }
 
-    Attacker** crab = malloc(sizeof(Attacker*) * size);
+    Attacker** crab = malloc(sizeof(Attacker*) * size*1000);
         if (crab == NULL) {
             printf("Memory allocation failed\n");
             return 1;
         }
         
-    Defender** monkey = malloc(sizeof(Defender*) * size);
+    Defender** monkey = malloc(sizeof(Defender*) * size*1000);
         if (monkey == NULL) {
             printf("Memory allocation failed\n");
             return 1;
         }
 
-    for( int i = 0; i < 10; i++){
-        size_c = i + 1;  // Size of crab array
-        size_m = i;      // Size of monkey array
-        showPath(t, size);
-        tree(&banana, &size_m, t, size, monkey, i);
-        crab[i] = create_attacker();
-        
-        for(int j = 0; j < i; j++){
-            	mooveCrabs(t, size, crab[j]);
-        }
-        
-        posInitCrabs(t, size, crab[i]);
-        mooveCrabs(t, size, crab[i]);
+        for( int i = 0; i < 1000; i++){
 
-        money(crab,monkey,&size_c, &size_m,&banana, t);
-    }
+            showPath(t, size);
+            if ( i != 0 && size_c > 0) {
+               money(crab, monkey, &size_c, &size_m, &banana, t);
+            }
+            tree(&banana, &size_m, t, size, monkey, i);
+
+            for(int j = 0; j < i; j++){
+                if (crab[j] != NULL) {
+                    mooveCrabs(t, size, crab[j]);
+                    printf("Crab %d moved to (%d, %d)\n", j, crab[j]->pos.x, crab[j]->pos.y);
+                }
+            }
+            
+            crab[i] = create_attacker();
+            size_c += 1;
+            if (crab[i] != NULL) {
+                posInitCrabs(t, size, crab[i]);
+                mooveCrabs(t, size, crab[i]);;
+            }
+            
+            // Break if we reach the end of allocated memory
+            if (i >= size - 1) break;
+        }
 
 
     // Free the crabs
