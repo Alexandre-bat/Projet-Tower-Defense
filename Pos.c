@@ -215,10 +215,6 @@ void verifyWinCrab(Attacker** crab, int size_c, int size_m, int sizeMap, int** m
             }
         }
     }
-    if(size_c == 0 && size_m > 0){
-        printf("All crabs defeated - You Win!\n");
-        exit(0);
-    }
 }
 
 int** generatePath(int* nbsp) {
