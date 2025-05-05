@@ -136,6 +136,14 @@ void mooveCrabs(int** map, int size, Attacker* crab) {
         map[y][x] = 1;
         crab->pos.y -= 1;
     } 
+    printf("%d && %d \n",x,map[y][x+1]);
+    if(x == size - 2 && map[y][x+1] == 100){
+        map[y][x] = 1; // Remove crab from the map
+        free(crab); // Free crab memory
+        crab = NULL; // Set pointer to NULL
+        printf("Crab has reached the end of the path!\n");
+        return;
+    }
 
     // If previous position was a starting point (101), restore it
     if (map[y][x] == 1 && x == 0) {
@@ -148,14 +156,14 @@ void mooveCrabs(int** map, int size, Attacker* crab) {
     }
 }
 
-void tree(int* banana, int* m, int** t, int size, Defender** monkey, int i) {
+void tree(int* banana, int* m, int** t, int size, Defender** monkey) {
     int none;
     if(*banana >= 2){
         printf("You have %d bananas\n", *banana);
         printf("Do you want to buy a monkey? (1 for yes, 0 for no): ");
         scanf("%d", &none);
         if(none == 1){
-            monkey[i] = posMonkey(t, size);
+            monkey[*m] = posMonkey(t, size);
             *banana -= 2;
             (*m)++;
             }
@@ -201,21 +209,7 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
 }
     
 
-void verifyWinCrab(Attacker** crab, int size_c, int size_m, int sizeMap, int** map) {
-    for(int i = 0; i < size_c; i++){
-        if(crab[i] != NULL){
-            printf("%d == %d \n ", crab[i]->pos.x, sizeMap-1);
-            if(crab[i]->pos.x == sizeMap-1){
-                map[crab[i]->pos.y][crab[i]->pos.x] = 100; // Remove crab from the map
-                free(crab[i]); // Free crab memory
-                crab[i] = NULL; // Set pointer to NULL
-                printf("Crab %d has reached the end of the path!\n", i);
-                printf("Game Over - You Lose!\n");
-                exit(1);
-            }
-        }
-    }
-}
+
 
 int** generatePath(int* nbsp) {
     int size;
@@ -334,7 +328,20 @@ void showPath(int** grid, int size) {
     }
 }
 
-
+void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map) {
+    for(int i = 0; i < size_c; i++) {
+        if(crab[i] != NULL && crab[i]->pos.x == sizeMap-1) {
+            printf("Game Over - Crab reached the end!\n");
+            map[crab[i]->pos.y][crab[i]->pos.x] = 100; // Mark the end
+            crab[i] = NULL; // Set pointer to NULL
+            for (int j = i; j < size_c - 1; j++) {
+                crab[j] = crab[j + 1]; // Shift the array to remove the crab
+            }
+            showPath(map, sizeMap); // Show the map
+            exit(1);
+        }
+    }
+}
 int main()
 {
     srand(time(NULL));  // Initialize random seed
@@ -362,34 +369,32 @@ int main()
 
         for( int i = 0; i < MAX_UNITS && i < 100; i++){  // Limit to 100 iterations for safety
 
+            if( i%3 == 0){ 
+                crab[size_c] = create_attacker();
+                posInitCrabs(t, size, crab[size_c]);
+                size_c += 1;
+            }
+
             showPath(t, size);
             if (size_c > 0) {  // Simplified condition
                money(crab, monkey, &size_c, &size_m, &banana, t);
             }
-            tree(&banana, &size_m, t, size, monkey, i);
-
-            for(int j = 0; j < i; j++){
+            printf("Problem ?\n");
+            tree(&banana, &size_m, t, size, monkey);
+            printf("Problem ?\n");
+            //printf("Jusqu'ici tout va bien 1\n");
+            for(int j = 0; j < size_c; j++){
                 if (crab[j] != NULL) {
                     mooveCrabs(t, size, crab[j]);
+                    verifyWinCrab(crab,j, size, t);
                 }
             }
+            
 
-            verifyWinCrab(crab, size_c, size_m, size, t);
-
-            crab[i] = create_attacker();
-            size_c += 1;
-
-
-            if (crab[i] != NULL) {
-                posInitCrabs(t, size, crab[i]);
-                mooveCrabs(t, size, crab[i]);;
-            }
-            printf("Jusqu'ici tout va bien 3\n");
             if (i >= MAX_UNITS) {
                 printf("Limite atteinte (%d crabs)\n", MAX_UNITS);
                 break;
             }
-            printf("Jusqu'ici tout va bien 4\n");
         }
 
 
