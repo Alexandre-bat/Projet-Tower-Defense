@@ -337,11 +337,12 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map) {
             for (int j = i; j < size_c - 1; j++) {
                 crab[j] = crab[j + 1]; // Shift the array to remove the crab
             }
-            showPath(map, sizeMap); // Show the map
             exit(1);
         }
     }
 }
+
+
 int main()
 {
     srand(time(NULL));  // Initialize random seed
