@@ -11,8 +11,10 @@ int** generatePath(int* s) {
         printf("Size must be between 11 and 99.\n");
         exit(1);
     }
+    // Get size 
+    
     *s = size;
-    srand(time(NULL));
+    srand(time(NULL));	
     
     int** grid = malloc(size * sizeof(int*));
     if (grid == NULL) {
@@ -27,12 +29,13 @@ int** generatePath(int* s) {
             exit(1);
         }
     }
+    // Creat **grid for stock the path
 
-    int currentRow = rand() % (size/3) +size/3;  // S'assurer que currentRow est dans les bornes
+    int currentRow = rand() % (size/3) +size/3;  
     int lastDirection = 0;
-    int pastDirection = 0; // 0: tout droit, 1: haut, 2: bas
+    int pastDirection = 0; 
 
-    // Initialisation de la grille avec des espaces vides
+
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             grid[i][j] = 0;
@@ -42,11 +45,12 @@ int** generatePath(int* s) {
     int col = 1;
     int direction;
     grid[currentRow][0] = 1;
+    grid[currentRow][1] = 1;
     
     while (col != 0) {
-        direction = rand() % 3; // Réduire la fréquence des virages
+        direction = rand() % 3; 
 
-        if (direction == 1 && currentRow > 3 && pastDirection!=2 && lastDirection != 2) {  // Vérification des bornes
+        if (direction == 1 && currentRow > 3 && pastDirection!=2 && lastDirection != 2) {  
             currentRow--;
             grid[currentRow][col] = 1;
             lastDirection = 1;
@@ -55,34 +59,25 @@ int** generatePath(int* s) {
             currentRow++;
             grid[currentRow][col] = 1;
             lastDirection = 2;
-            pastDirection=1;
+            pastDirection=2;
         } else {
         		if(lastDirection == 0){
         		pastDirection=0;
         		}
             col++;
             lastDirection == 0;
-            if (col == size) {
-                col = 0;
-            }
             grid[currentRow][col] = 1;
             lastDirection = 0;
-        }
-    }
-
-    // Position du début et de la fin
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            if (grid[i][j] == 1 && j == size - 1) {
-                grid[i][j] = 100;  // Fin du chemin
-            }
-            if (grid[i][j] == 1 && j == 0) {
-                grid[i][j] = 101;  // Début du chemin
+                if (col == size-1) {
+                		grid[currentRow][col] = -1;
+                    col = 0;
             }
         }
     }
+		// Generate the path and put it in **grid
 
-    return grid;
+  
+  return grid;
 }
 
 
