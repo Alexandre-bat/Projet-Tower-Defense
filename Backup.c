@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <time.h>
-//#include <windows.h>
+#include <windows.h>
 #include <stdlib.h>
 
 
@@ -27,20 +27,6 @@ typedef struct{
     int level;
   }Attacker;
 
-void showOnlyPath(Position* p, int N) {
-    
-    if (p == NULL || N <= 0) {
-        printf("Le tableau de positions est vide ou la taille est incorrecte.\n");
-        return;
-    }
-    
-    for (int i = N-1; i >= 0; i--) {
-        int x = p[i].x;
-        int y = p[i].y;
-        printf("Position %d: x = %d, y = %d\n", i + 1, x+1, y+1);
-    }
-    
-}
 
 // Function to create a new defender
 //Define icones for the defender 
@@ -135,7 +121,10 @@ void posInitCrabs(int** map, int size, Attacker* crab) {
 }
 
 
-void mooveCrabs(int** map, int size, Attacker* crab, Position* p) {
+void mooveCrabs(int** map, int size, Attacker* crab, Position* p, int size_pos) {
+    if (crab == NULL) return;  // Vérifier si le crabe est valide
+    if(p == NULL) return;  // Vérifier si le tableau de positions est valide
+    if(size_pos <= 0) return;  // Vérifier si la taille du tableau de positions est valide
     int l = crab->level;
 
     // Vérifier la position actuelle du crabe (assurer qu'il n'est pas hors limite)
@@ -145,14 +134,14 @@ void mooveCrabs(int** map, int size, Attacker* crab, Position* p) {
     }
 
     // Vérifie si la position suivante est dans les limites
-    if (l < size && p[l].x >= 0 && p[l].y >= 0 && p[l].x < size && p[l].y < size) {
+    if (l < size_pos && p[l].x >= 0 && p[l].y >= 0 && p[l].x < size && p[l].y < size) {
         printf("Crab moving to x: %d, y: %d\n", p[l].x, p[l].y);
         crab->pos.x = p[l].x;  // Mettre à jour la position du crabe
         crab->pos.y = p[l].y;
         crab->level++;  // Incrémenter le niveau du crabe
 
         // Si le crabe atteint la fin du niveau (conditions de victoire)
-        if (crab->pos.x == size - 2 && map[crab->pos.y][crab->pos.x + 1] == 100) {
+        if (crab->pos.x == size -1 && map[crab->pos.y][crab->pos.x + 1] == 100) {
             map[crab->pos.y][crab->pos.x] = 0;  // Retirer le crabe du map
             free(crab);  // Libérer la mémoire du crabe
             crab = NULL;  // Définir le pointeur comme NULL
@@ -169,10 +158,11 @@ void mooveCrabs(int** map, int size, Attacker* crab, Position* p) {
             map[crab->pos.y][crab->pos.x] = 10;  // Marquer la position actuelle avec "10" pour le crabe
         }
     } else {
+        printf("Moving conditions: level %d < size %d, pos(%d,%d) within [0,%d]\n", 
+               l, size, p[l].x, p[l].y, size-1);
         printf("Invalid move for crab at level %d.\n", l);
     }
 }
-
 
 void tree(int* banana, int* m, int** t, int size, Defender** monkey) {
     int none;
@@ -225,7 +215,6 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
     }
 }
     
-
 int** generatePath(int* nbsp, Position** pos, int* sizeofpos) {
     int size;
     printf("What is the size of the map (11 - 99)? : ");
@@ -321,47 +310,51 @@ int** generatePath(int* nbsp, Position** pos, int* sizeofpos) {
     }
 
     // Afficher les positions générées
-    showOnlyPath(posBis, *sizeofpos);
     printf("\n");
 
     free(posBis);  // Libérer la mémoire allouée pour posBis
     return grid;
 }
 
-
-
 void showPath(int** grid, int size) {
+    int back;
+    srand(time(NULL));
+printf("O  ");
+for (int i = 1; i < size+1; i++){
+    printf("%2d  ",i);
+}
 
-    printf("O  ");
-    for (int i = 1; i < 10; i++){
-        printf("%.2d  ",i);
-    }
-    for (int i = 10; i < size+1; i++){
-        printf("%.2d  ",i);
-    }
+for (int i = 0; i < size; i++) {
+    printf("\n%2d ",i+1);
+    for (int j = 0; j < size; j++) {
+        if(j == 0 && grid[i][0] == 1){
+            printf("\xF0\x9F\x86\x96  ");
+        }else if(j == size-1 && grid[i][size-1] == 1){
+            printf("\xF0\x9F\x8C\xBA  ");
+        }else if (grid[i][j] == 1) {
+            printf("\xF0\x9F\x94\xB4  ");
+        }else if(grid[i][j] == 2){
+            printf("\xF0\x9F\x8C\xB7  ");
+        }else if( grid[i][j] == 10){
+            printf("\xF0\x9F\x90\x9D  ");
+        }else {
+                back=rand()%5;
+                if (back == 0) {
+                        printf("\xF0\x9F\x8D\x84  ");
+                }else if (back == 1) {
+                        printf("\xF0\x9F\x8D\x80  ");
+                }else if (back == 2) {
+                        printf("\xF0\x9F\x8C\xB2  ");
+                }else if (back == 3) {
+                        printf("\xF0\x9F\x8C\xB3  "); 	
+                }else{
+                        printf("\xE2\x97\xBD  "); 	
+                }
 
-    for (int i = 0; i < size; i++) {
-        printf("\n%.2d ",i+1);
-
-        for (int j = 0; j < size; j++) {
-            if (grid[i][j] == 1) {
-                printf("\xF0\x9F\x94\xB4  ");
-            }
-            else if(grid[i][j] == 2){
-                printf("\xF0\x9F\x99\x88  ");
-            }
-            else if( grid[i][j] == 10){
-                printf("\xF0\x9F\x98\xBE  ");
-            }else if(grid[i][j] == 101){
-                printf("\xF0\x9F\x86\x96  ");
-            }else if(grid[i][j] == 100){
-                printf("\xF0\x9F\x92\xA3  ");
-            }else {
-                printf("\xF0\x9F\x94\xB2  ");
-            }
         }
-        printf("\n");
     }
+    printf("\n");
+}
 }
 
 void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV) {
@@ -373,7 +366,7 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
                 printf("Game Over! The King Monkey has been defeated!\n");
                 exit(1);
             }
-            map[crab[i]->pos.y][crab[i]->pos.x] = 100; // Mark the end
+            map[crab[i]->pos.y][crab[i]->pos.x] = 1; // Mark the end
             crab[i] = NULL; // Set pointer to NULL
             for (int j = i; j < size_c - 1; j++) {
                 crab[j] = crab[j + 1]; // Shift the array to remove the crab
@@ -382,18 +375,10 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
     }
 }
 
-
-
-
-
-
-
-
 void game(int** t, int size, int* size_c, int* size_m, int* banana, Attacker** crab, Defender** monkey, int size_pos, Position** p) {
     // Game logic goes here
     int i = -1;
     int KingMonkeyPv = rand()%5 + 1; // Random HP for the King Monkey
-    showOnlyPath(*p,size_pos);
     printf("King Monkey HP: %d\n", KingMonkeyPv);
         while(1){  // Limit to 100 iterations for safety
             i++;
@@ -415,7 +400,7 @@ void game(int** t, int size, int* size_c, int* size_m, int* banana, Attacker** c
             printf("ok4\n");
             for(int j = 0; j < *size_c; j++){
                 if (crab[j] != NULL) {
-                    mooveCrabs(t, size, crab[j],*p);
+                    mooveCrabs(t, size, crab[j],*p, size_pos);
                     printf("ok5:%d\n",j);
                     verifyWinCrab(crab,j, size, t,&KingMonkeyPv);
                 }
@@ -456,7 +441,7 @@ int main()
     menu();
 
     srand(time(NULL));  // Initialize random seed
-    //SetConsoleOutputCP(65001);
+    SetConsoleOutputCP(65001);
     
     int size;
     int banana = 4;

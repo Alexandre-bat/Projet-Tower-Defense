@@ -6,6 +6,8 @@
 #include <windows.h>
 #include <stdlib.h>
 
+
+
 typedef struct {
     int x;
     int y;
@@ -24,6 +26,7 @@ typedef struct{
     int hp;
     int level;
   }Attacker;
+
 
 // Function to create a new defender
 //Define icones for the defender 
@@ -45,7 +48,7 @@ Defender* create_defender() {
 
 // Function to create a new attacker
 //Define icones for the attacker
-Attacker* create_attacker(int pos){
+Attacker* create_attacker(){
 
     Attacker* new_attacker = (Attacker*)malloc(sizeof(Attacker));
 
@@ -56,7 +59,7 @@ Attacker* create_attacker(int pos){
 
     new_attacker->dmg = 1;
     new_attacker->hp = 3;
-    new_attacker->level = pos;
+    new_attacker->level = 0;
     return new_attacker;
 }
 
@@ -109,6 +112,7 @@ void posInitCrabs(int** map, int size, Attacker* crab) {
             map[i][0] = 10;
             crab->pos.x = 0;
             crab->pos.y = i;
+            crab->level++;
             return;
         }
     }
@@ -117,40 +121,46 @@ void posInitCrabs(int** map, int size, Attacker* crab) {
 }
 
 
-void mooveCrabs(int** map, int size, Attacker* crab) {
-    int x = crab->pos.x;
-    int y = crab->pos.y;
+void mooveCrabs(int** map, int size, Attacker* crab, Position* p, int size_pos) {
+    if (crab == NULL) return;  // Vérifier si le crabe est valide
+    if(p == NULL) return;  // Vérifier si le tableau de positions est valide
+    if(size_pos <= 0) return;  // Vérifier si la taille du tableau de positions est valide
+    int l = crab->level;
 
-    // Check right
-    if (x + 1 < size && map[y][x + 1] == 1) {
-        map[y][x] = 1;
-        crab->pos.x += 1;
-    }
-    // Check down
-    else if (y + 1 < size && map[y + 1][x] == 1) {
-        map[y][x] = 1;
-        crab->pos.y += 1;
-    }
-    // Check up
-    else if (y - 1 >= 0 && map[y - 1][x] == 1) {
-        map[y][x] = 1;
-        crab->pos.y -= 1;
-    } 
-    if(x == size - 2 && map[y][x+1] == 100){
-        map[y][x] = 1; // Remove crab from the map
-        free(crab); // Free crab memory
-        crab = NULL; // Set pointer to NULL
-        return;
+    // Vérifier la position actuelle du crabe (assurer qu'il n'est pas hors limite)
+    if (map[crab->pos.y][crab->pos.x] == 10) {
+        // Si la position est valide, effectue un changement
+        map[crab->pos.y][crab->pos.x] = 1;  // Retirer le crabe de sa position actuelle
     }
 
-    // If previous position was a starting point (101), restore it
-    if (map[y][x] == 1 && x == 0) {
-        map[y][x] = 101;
-    }
+    // Vérifie si la position suivante est dans les limites
+    if (l < size_pos && p[l].x >= 0 && p[l].y >= 0 && p[l].x < size && p[l].y < size) {
+        printf("Crab moving to x: %d, y: %d\n", p[l].x, p[l].y);
+        crab->pos.x = p[l].x;  // Mettre à jour la position du crabe
+        crab->pos.y = p[l].y;
+        crab->level++;  // Incrémenter le niveau du crabe
 
-    // Update crab position on map
-    if (map[crab->pos.y][crab->pos.x] != 10) {
-        map[crab->pos.y][crab->pos.x] = 10;
+        // Si le crabe atteint la fin du niveau (conditions de victoire)
+        if (crab->pos.x == size -1 && map[crab->pos.y][crab->pos.x + 1] == 100) {
+            map[crab->pos.y][crab->pos.x] = 0;  // Retirer le crabe du map
+            free(crab);  // Libérer la mémoire du crabe
+            crab = NULL;  // Définir le pointeur comme NULL
+            return;  // Sortir de la fonction
+        }
+
+        // Restauration de l'ancienne position si elle était un point de départ (101)
+        if (map[crab->pos.y][crab->pos.x] == 0 && crab->pos.x == 0) {
+            map[crab->pos.y][crab->pos.x] = 101;  // Restaurer le point de départ
+        }
+
+        // Mettre à jour la nouvelle position du crabe sur la carte
+        if (map[crab->pos.y][crab->pos.x] != 10) {
+            map[crab->pos.y][crab->pos.x] = 10;  // Marquer la position actuelle avec "10" pour le crabe
+        }
+    } else {
+        printf("Moving conditions: level %d < size %d, pos(%d,%d) within [0,%d]\n", 
+               l, size, p[l].x, p[l].y, size-1);
+        printf("Invalid move for crab at level %d.\n", l);
     }
 }
 
@@ -205,19 +215,18 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
     }
 }
     
-
-int** generatePath(int* nbsp, Position* pos, int* sizeofpos) {
+int** generatePath(int* nbsp, Position** pos, int* sizeofpos) {
     int size;
-    printf("What is the size of the map ( 11 - 99)? : ");
+    printf("What is the size of the map (11 - 99)? : ");
     scanf("%d", &size);
     if (size < 11 || size > 99) {
         printf("Size must be between 11 and 99.\n");
         printf("Error\n");
         exit(1);
     }
-
+    
     if (size <= 0) {
-        printf("Size must be postive.\n");
+        printf("Size must be positive.\n");
         printf("Error\n");
         exit(1);
     }
@@ -233,7 +242,8 @@ int** generatePath(int* nbsp, Position* pos, int* sizeofpos) {
         printf("Error\n");
         exit(1);
     }
-    int currentRow = rand()%size; // Choisir une ligne aléatoire pour commencer
+
+    int currentRow = rand() % size; // Choisir une ligne aléatoire pour commencer
     if (currentRow == 0) {
         currentRow = 1; // Assurez-vous que la ligne est au moins 1
     }
@@ -243,93 +253,109 @@ int** generatePath(int* nbsp, Position* pos, int* sizeofpos) {
     // Initialisation de la grille avec des espaces vides
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
-            grid[i][j] = 0;
+            grid[i][j] = 0;  // Espaces vides
         }
     }
 
-    Position* posBis = malloc(sizeof(Position) * 2 * size);
+    Position* posBis = malloc(sizeof(Position) * 2 * size); // Allocation temporaire pour les positions
+    *sizeofpos = 0;  // Initialiser le compteur de positions
 
-    // Génération du chemin de droite à gauche
-    for (int col = size; col >= 0; col--) {
-        grid[currentRow][col] = 1; // Marque le chemin
-        // Si nous ne sommes pas à la première colonne
-        if (col > 0 && col < size - 2) {
-            int direction = rand() % 4; // Reduce frequency of turns
+    // Génération du chemin de gauche à droite (au lieu de droite à gauche pour plus de clarté)
+    for (int col = 0; col < size; col++) {
+        grid[currentRow][col] = 1; // Marquer le chemin
+        posBis[*sizeofpos].x = col;  // Sauvegarder la position
+        posBis[*sizeofpos].y = currentRow;
+        (*sizeofpos)++;
+
+        // Si ce n'est pas la dernière colonne, on peut essayer de faire un virage
+        if (col > 0 && col < size - 1) {
+            int direction = rand() % 4; // Choisir une direction aléatoire
 
             if (direction == 0 && lastDirection != 1 && lastDirection != 2) {
-                int upOrDown = rand() % 2; // 0 (haut), 1 (bas)
-                
-                if (upOrDown == 0 && currentRow > 1) {
+                int upOrDown = rand() % 2; // 0: haut, 1: bas
+                if (upOrDown == 0 && currentRow > 0) { // Aller vers le haut
                     currentRow--;
-                    grid[currentRow][col] = 1; // Remplit la case du dessus
+                    grid[currentRow][col] = 1; // Marquer la case du dessus
+                    posBis[*sizeofpos].x = col;
+                    posBis[*sizeofpos].y = currentRow;
+                    (*sizeofpos)++;
                     lastDirection = 1;
-                    posBis[*sizeofpos].x = col;
-                    posBis[*sizeofpos].y = currentRow;
-                    (*sizeofpos)++;
-                } else if (upOrDown == 1 && currentRow < size - 2) {
+                } else if (upOrDown == 1 && currentRow < size - 1) { // Aller vers le bas
                     currentRow++;
-                    grid[currentRow][col] = 1; // Remplit la case du dessous
-                    lastDirection = 2;
+                    grid[currentRow][col] = 1; // Marquer la case du dessous
                     posBis[*sizeofpos].x = col;
                     posBis[*sizeofpos].y = currentRow;
                     (*sizeofpos)++;
+                    lastDirection = 2;
                 } else {
                     lastDirection = 0;
-                    posBis[*sizeofpos].x = col;
-                    posBis[*sizeofpos].y = currentRow;
-                    (*sizeofpos)++;
                 }
             } else {
                 lastDirection = 0;
-                posBis[*sizeofpos].x = col;
-                posBis[*sizeofpos].y = currentRow;
-                (*sizeofpos)++;
             }
         }
     }
-    
-    pos = malloc(sizeof(Position) * (*sizeofpos)); // Allocate memory for positions
-    for(int i = 0; i < *sizeofpos; i++) {
-        pos[i].x = posBis[i].x;
-        pos[i].y = posBis[i].y;
+
+    // Allocation de la mémoire pour les positions finales
+    *pos = malloc(sizeof(Position) * (*sizeofpos));
+    if (*pos == NULL) {
+        printf("Memory allocation error for positions.\n");
+        exit(1);
     }
 
-    free(pos);  // Free the entire array at once
+    // Copier les positions de posBis dans *pos
+    for (int i = 0; i < *sizeofpos; i++) {
+        (*pos)[i].x = posBis[i].x;  // Copier la position x
+        (*pos)[i].y = posBis[i].y;  // Copier la position y
+    }
+
+    // Afficher les positions générées
+    showOnlyPath(posBis, *sizeofpos);
+    printf("\n");
+
+    free(posBis);  // Libérer la mémoire allouée pour posBis
     return grid;
 }
 
 void showPath(int** grid, int size) {
+    int back;
+    srand(time(NULL));
+printf("O  ");
+for (int i = 1; i < size+1; i++){
+    printf("%2d  ",i);
+}
 
-    printf("O  ");
-    for (int i = 1; i < 10; i++){
-        printf("%.2d  ",i);
-    }
-    for (int i = 10; i < size+1; i++){
-        printf("%.2d  ",i);
-    }
+for (int i = 0; i < size; i++) {
+    printf("\n%2d ",i+1);
+    for (int j = 0; j < size; j++) {
+        if(j == 0 && grid[i][0] == 1){
+            printf("\xF0\x9F\x86\x96  ");
+        }else if(j == size-1 && grid[i][size-1] == 1){
+            printf("\xF0\x9F\x8C\xBA  ");
+        }else if (grid[i][j] == 1) {
+            printf("\xF0\x9F\x94\xB4  ");
+        }else if(grid[i][j] == 2){
+            printf("\xF0\x9F\x8C\xB7  ");
+        }else if( grid[i][j] == 10){
+            printf("\xF0\x9F\x90\x9D  ");
+        }else {
+                back=rand()%5;
+                if (back == 0) {
+                        printf("\xF0\x9F\x8D\x84  ");
+                }else if (back == 1) {
+                        printf("\xF0\x9F\x8D\x80  ");
+                }else if (back == 2) {
+                        printf("\xF0\x9F\x8C\xB2  ");
+                }else if (back == 3) {
+                        printf("\xF0\x9F\x8C\xB3  "); 	
+                }else{
+                        printf("\xE2\x97\xBD  "); 	
+                }
 
-    for (int i = 0; i < size; i++) {
-        printf("\n%.2d ",i+1);
-
-        for (int j = 0; j < size; j++) {
-            if (grid[i][j] == 1) {
-                printf("\xF0\x9F\x94\xB4  ");
-            }
-            else if(grid[i][j] == 2){
-                printf("\xF0\x9F\x99\x88  ");
-            }
-            else if( grid[i][j] == 10){
-                printf("\xF0\x9F\x98\xBE  ");
-            }else if(grid[i][j] == 101){
-                printf("\xF0\x9F\x86\x96  ");
-            }else if(grid[i][j] == 100){
-                printf("\xF0\x9F\x92\xA3  ");
-            }else {
-                printf("\xF0\x9F\x94\xB2  ");
-            }
         }
-        printf("\n");
     }
+    printf("\n");
+}
 }
 
 void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV) {
@@ -341,7 +367,7 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
                 printf("Game Over! The King Monkey has been defeated!\n");
                 exit(1);
             }
-            map[crab[i]->pos.y][crab[i]->pos.x] = 100; // Mark the end
+            map[crab[i]->pos.y][crab[i]->pos.x] = 1; // Mark the end
             crab[i] = NULL; // Set pointer to NULL
             for (int j = i; j < size_c - 1; j++) {
                 crab[j] = crab[j + 1]; // Shift the array to remove the crab
@@ -350,8 +376,7 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
     }
 }
 
-
-void game(int** t, int size, int* size_c, int* size_m, int* banana, Attacker** crab, Defender** monkey, int size_pos) {
+void game(int** t, int size, int* size_c, int* size_m, int* banana, Attacker** crab, Defender** monkey, int size_pos, Position** p) {
     // Game logic goes here
     int i = -1;
     int KingMonkeyPv = rand()%5 + 1; // Random HP for the King Monkey
@@ -367,13 +392,17 @@ void game(int** t, int size, int* size_c, int* size_m, int* banana, Attacker** c
 
             showPath(t, size);
             if (size_c > 0) {  // Simplified condition
+
                money(crab, monkey, size_c, size_m, banana, t);
+              
             }
 
             tree(banana, size_m, t, size, monkey);
+            printf("ok4\n");
             for(int j = 0; j < *size_c; j++){
                 if (crab[j] != NULL) {
-                    mooveCrabs(t, size, crab[j]);
+                    mooveCrabs(t, size, crab[j],*p, size_pos);
+                    printf("ok5:%d\n",j);
                     verifyWinCrab(crab,j, size, t,&KingMonkeyPv);
                 }
             }
@@ -423,7 +452,7 @@ int main()
     Position* pos;
     int size_pos = 0; // Size of the position array
 
-    int** t = generatePath(&size,pos, &size_pos);
+    int** t = generatePath(&size,&pos, &size_pos);
     if (t == NULL) {
         printf("Memory allocation failed\n");
         return 1;
@@ -437,7 +466,7 @@ int main()
     Defender** monkey = malloc(sizeof(Defender*) * MAX_UNITS);
     if (!monkey) { printf("Erreur allocation monkey\n"); return 1; }
 
-    game(t, size, &size_c, &size_m, &banana, crab, monkey, size_pos);
+    game(t, size, &size_c, &size_m, &banana, crab, monkey, size_pos, &pos);
 
     // Free the crabs
     for (int i = 0; i < size_c; i++) {

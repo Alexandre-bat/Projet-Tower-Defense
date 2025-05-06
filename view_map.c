@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
+#include "all.h"
 
 void showPath(int** grid, int size) {
 		int back;
