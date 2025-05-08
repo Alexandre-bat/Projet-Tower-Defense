@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include <time.h>
-#include <windows.h>
 #include <stdlib.h>
 
 
@@ -121,7 +120,7 @@ void posInitCrabs(int** map, int size, Attacker* crab) {
 }
 
 
-void mooveCrabs(int** map, int size, Attacker* crab, Position* p, int size_pos) {
+void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos) {
     if (crab == NULL) return;  // Vérifier si le crabe est valide
     if(p == NULL) return;  // Vérifier si le tableau de positions est valide
     if(size_pos <= 0) return;  // Vérifier si la taille du tableau de positions est valide
@@ -215,6 +214,7 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
     }
 }
     
+
 int** generatePath(int* nbsp, Position** pos, int* sizeofpos) {
     int size;
     printf("What is the size of the map (11 - 99)? : ");
@@ -308,7 +308,6 @@ int** generatePath(int* nbsp, Position** pos, int* sizeofpos) {
         (*pos)[i].x = posBis[i].x;  // Copier la position x
         (*pos)[i].y = posBis[i].y;  // Copier la position y
     }
-
     // Afficher les positions générées
     printf("\n");
 
@@ -316,8 +315,7 @@ int** generatePath(int* nbsp, Position** pos, int* sizeofpos) {
     return grid;
 }
 
-void showPath(int** grid, int size) {
-    int back;
+void showPath(int** grid, int size) {int back;
     srand(time(NULL));
 printf("O  ");
 for (int i = 1; i < size+1; i++){
@@ -375,13 +373,144 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
     }
 }
 
-void game(int** t, int size, int* size_c, int* size_m, int* banana, Attacker** crab, Defender** monkey, int size_pos, Position** p) {
+int choose(){
+    int choice;
+    printf("Choose an option:\n");
+    printf("    1. Continue\n");
+    printf("    2. Save\n");
+    printf("Enter your choice: ");
+    
+    scanf("%d", &choice);
+    switch (choice) {
+        case 1:
+            return 1; // Continue the game
+        case 2:
+            // Call the save function here
+            printf("Game saved.\n"); // To do
+            return 2; // Save the game
+        default:
+            printf("Invalid choice. Please try again.\n");
+            choose();
+    }
+}
+
+
+void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana,Attacker*** crab,Defender*** monkey,int* size_pos,char* output_file) {
+	FILE* file = fopen(output_file, "w");
+	if (file == NULL) {
+		perror("Erreur ouverture fichier");
+		return;
+	}
+
+	fwrite(size, sizeof(int), 1, file);
+
+	for (int i = 0; i < *size; i++) {
+		fwrite(&(*size), sizeof(int), 1, file);
+		for (int j = 0; j < *size; j++) {
+		    fwrite(&(*t)[i][j], sizeof(int), 1, file);
+		}
+	}
+
+	fwrite(size_c, sizeof(int), 1, file);
+	fwrite(size_m, sizeof(int), 1, file);
+	fwrite(banana, sizeof(int), 1, file);
+
+	fwrite(size_pos, sizeof(int), 1, file);
+
+	for (int i = 0; i < *size_c; i++) {
+		fwrite(&(*crab)[i]->pos.x, sizeof(int), 1, file);
+		fwrite(&(*crab)[i]->pos.y, sizeof(int), 1, file);
+		fwrite(&(*crab)[i]->dmg, sizeof(int), 1, file);
+		fwrite(&(*crab)[i]->hp, sizeof(int), 1, file);
+		fwrite(&(*crab)[i]->level, sizeof(int), 1, file);
+	}
+
+	for (int i = 0; i < *size_m; i++) {
+		fwrite(&(*monkey)[i]->pos.x, sizeof(int), 1, file);
+		fwrite(&(*monkey)[i]->pos.y, sizeof(int), 1, file);
+		fwrite(&(*monkey)[i]->dmg, sizeof(int), 1, file);
+		fwrite(&(*monkey)[i]->mana, sizeof(int), 1, file);
+		fwrite(&(*monkey)[i]->level, sizeof(int), 1, file);
+	}
+
+	fclose(file);
+}
+
+
+void load_from_file(int*** t, int* size, int* size_c, int* size_m, int* banana, Attacker*** crab, Defender*** monkey, int* size_pos, char* input_file) {
+    FILE* file = fopen(input_file, "r");
+    if (file == NULL) {
+        perror("Erreur lors de l'ouverture du fichier");
+        return;
+    }
+
+    // Lire 'size' de t
+    fread(size, sizeof(int), 1, file);
+
+    // Allouer de la mémoire pour t (tableau de pointeurs vers des tableaux d'entiers)
+    *t = (int**)malloc(*size * sizeof(int*));
+    for (int i = 0; i < *size; i++) {
+        (*t)[i] = (int*)malloc(*size * sizeof(int));
+    }
+
+    // Lire les données de t (tableau de pointeurs vers des tableaux d'entiers)
+    for (int i = 0; i < *size; i++) {
+        int sub_size;
+        fread(&sub_size, sizeof(int), 1, file);  // Taille du sous-tableau
+        if (sub_size != *size) {
+            perror("Incohérence dans la taille des sous-tableaux");
+            return;
+        }
+        for (int j = 0; j < *size; j++) {
+            fread(&(*t)[i][j], sizeof(int), 1, file);
+        }
+    }
+
+    // Lire les entiers supplémentaires
+    fread(size_c, sizeof(int), 1, file);
+    fread(size_m, sizeof(int), 1, file);
+    fread(banana, sizeof(int), 1, file);
+
+    // Lire les tableaux crab (Attacker) et monkey (Defender)
+    fread(size_pos, sizeof(int), 1, file);  // Taille des tableaux
+
+    *crab = (Attacker**)malloc(*size_c * sizeof(Attacker*));
+    for (int i = 0; i < *size_c; i++) {
+        (*crab)[i] = (Attacker*)malloc(sizeof(Attacker));
+        fread(&(*crab)[i]->pos.x, sizeof(int), 1, file);
+        fread(&(*crab)[i]->pos.y, sizeof(int), 1, file);
+        fread(&(*crab)[i]->dmg, sizeof(int), 1, file);
+        fread(&(*crab)[i]->hp, sizeof(int), 1, file);
+        fread(&(*crab)[i]->level, sizeof(int), 1, file);
+    }
+
+    *monkey = (Defender**)malloc(*size_m * sizeof(Defender*));
+    for (int i = 0; i < *size_m; i++) {
+        (*monkey)[i] = (Defender*)malloc(sizeof(Defender));
+        fread(&(*monkey)[i]->pos.x, sizeof(int), 1, file);
+        fread(&(*monkey)[i]->pos.y, sizeof(int), 1, file);
+        fread(&(*monkey)[i]->dmg, sizeof(int), 1, file);
+        fread(&(*monkey)[i]->mana, sizeof(int), 1, file);
+        fread(&(*monkey)[i]->level, sizeof(int), 1, file);
+    }
+
+    fclose(file);
+}
+
+
+void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** crab, Defender** monkey, int size_pos, Position** p) {
     // Game logic goes here
     int i = -1;
     int KingMonkeyPv = rand()%5 + 1; // Random HP for the King Monkey
     printf("King Monkey HP: %d\n", KingMonkeyPv);
         while(1){  // Limit to 100 iterations for safety
             i++;
+            /*int choice = choose(); // Call the choose function
+            if (choice == 2) {
+                char* output_file = "test_output.txt";
+                save_in_file(&t, &size, size_c, size_m, &banana, &crab, &monkey, &size_pos, output_file);
+                break; // Exit the game loop if the user chooses to save
+            }*/
             if( i%3 == 0){ 
                 crab[*size_c] = create_attacker(size_pos);
                 posInitCrabs(t, size, crab[*size_c]);
@@ -392,16 +521,14 @@ void game(int** t, int size, int* size_c, int* size_m, int* banana, Attacker** c
             showPath(t, size);
             if (size_c > 0) {  // Simplified condition
 
-               money(crab, monkey, size_c, size_m, banana, t);
+               money(crab, monkey, size_c, size_m, &banana, t);
               
             }
 
-            tree(banana, size_m, t, size, monkey);
-            printf("ok4\n");
+            tree(&banana, size_m, t, size, monkey);
             for(int j = 0; j < *size_c; j++){
                 if (crab[j] != NULL) {
                     mooveCrabs(t, size, crab[j],*p, size_pos);
-                    printf("ok5:%d\n",j);
                     verifyWinCrab(crab,j, size, t,&KingMonkeyPv);
                 }
             }
@@ -409,8 +536,7 @@ void game(int** t, int size, int* size_c, int* size_m, int* banana, Attacker** c
     }
 }
 
-
-void menu() {
+int menu() {
     printf("Choose an option:\n");
     printf("    1. Start Game\n");
     printf("    2. Save\n");
@@ -419,13 +545,79 @@ void menu() {
     
     int choice;
     scanf("%d", &choice);
-    switch (choice) {
+    return choice;
+}
+
+int main()
+{
+    SetConsoleOutputCP(65001);
+    srand(time(NULL));  // Initialize random seed
+
+    int size = 0;
+    int banana = 4;
+    int size_c = 0;  // Size of crab array
+    int size_m = 0;  // Size of monkey array
+    Position* pos = NULL;
+    int size_pos = 0; // Size of the position array
+    int** t = NULL;
+    Attacker** crab = NULL;
+    Defender** monkey = NULL;
+
+    int rand = menu();
+    switch (rand) {
         case 1:
-            // Call the game function here
+                        
+                            size_pos = 0; // Size of the position array
+                        
+                            t = generatePath(&size,&pos, &size_pos);
+                            if (t == NULL) { printf("Memory allocation failed\n"); return 1;}
+                        
+                            const int MAX_UNITS = 1000;
+                        
+                            Attacker** crab = malloc(sizeof(Attacker*) * MAX_UNITS);
+                            if (crab == NULL ) { printf("Erreur allocation crab\n"); return 1; }
+                        
+                            Defender** monkey = malloc(sizeof(Defender*) * MAX_UNITS);
+                            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); return 1; }
+                        
+                            game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos);
+
+                            for (int i = 0; i < size_c; i++) {
+                                if (crab[i] != NULL) {
+                                    free(crab[i]);
+                                }
+                            }
+                            free(crab);
+                        
+                            // Free the monkeys
+                            for (int i = 0; i < size_m; i++) {
+                                if (monkey[i] != NULL) {
+                                    free(monkey[i]);
+                                }
+                            }
+                            free(monkey);
+                        
+                            // Free the map
+                            for (int i = 0; i < size; i++) {
+                                free(t[i]);
+                            }
+                            free(t);
             break;
         case 2:
             // Call the save function here
             printf("Game saved.\n"); // To do
+            char* output_file = "test_output.txt";
+            FILE* test = fopen(output_file, "r");
+            if (test == NULL || fgetc(test) == EOF) {
+                printf("Save file is empty or doesn't exist. Starting new game...\n");
+                fclose(test);
+                exit(1);
+            } else {
+                fclose(test);
+            }
+            int banana;
+            load_from_file(&t, &size, &size_c, &size_m, &banana, &crab, &monkey, &size_pos, output_file);
+            game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos);
             break;
         case 3:
             exit(0);
@@ -433,60 +625,6 @@ void menu() {
             printf("Invalid choice. Please try again.\n");
             menu();
     }
-}
 
-int main()
-{
-    
-    menu();
-
-    srand(time(NULL));  // Initialize random seed
-    SetConsoleOutputCP(65001);
-    
-    int size;
-    int banana = 4;
-    int size_c = 0;  // Size of crab array
-    int size_m = 0;      // Size of monkey array
-
-    Position* pos;
-    int size_pos = 0; // Size of the position array
-
-    int** t = generatePath(&size,&pos, &size_pos);
-    if (t == NULL) {
-        printf("Memory allocation failed\n");
-        return 1;
-    }
-
-    const int MAX_UNITS = 1000;
-
-    Attacker** crab = malloc(sizeof(Attacker*) * MAX_UNITS);
-    if (!crab) { printf("Erreur allocation crab\n"); return 1; }
-
-    Defender** monkey = malloc(sizeof(Defender*) * MAX_UNITS);
-    if (!monkey) { printf("Erreur allocation monkey\n"); return 1; }
-
-    game(t, size, &size_c, &size_m, &banana, crab, monkey, size_pos, &pos);
-
-    // Free the crabs
-    for (int i = 0; i < size_c; i++) {
-        if (crab[i] != NULL) {
-            free(crab[i]);
-        }
-    }
-    free(crab);
-
-    // Free the monkeys
-    for (int i = 0; i < size_m; i++) {
-        if (monkey[i] != NULL) {
-            free(monkey[i]);
-        }
-    }
-    free(monkey);
-
-    // Free the map
-    for (int i = 0; i < size; i++) {
-        free(t[i]);
-    }
-    free(t);
     return 0;
 }

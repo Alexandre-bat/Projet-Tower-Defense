@@ -1,0 +1,5 @@
+cible : prerequis prerequis
+
+hello : Main.c Player.c Map&Files.c
+	gcc -o hello Player.c Map&Files.c Main.c -lm -lpthread -Wall -Wextra -Werror
+

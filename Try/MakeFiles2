@@ -1,0 +1,22 @@
+CC = gcc
+CFLAGS = -Wall -Wextra
+TARGET = game
+
+# Source files
+SRCS = Main.c "Map&Files.c" Player.c
+OBJS = $(SRCS:.c=.o)
+HEADERS = Biblio.h
+
+# Main target
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $(TARGET)
+
+# Object files
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean rule
+clean:
+	rm -f $(OBJS) $(TARGET)
+
+.PHONY: clean
