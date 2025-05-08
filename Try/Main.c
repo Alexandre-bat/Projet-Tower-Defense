@@ -1,4 +1,4 @@
-#include "Player.c"
+#include "Biblio.h"
 #include <windows.h>
 
 int main()

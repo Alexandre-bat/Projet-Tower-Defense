@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <windows.h>
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
@@ -536,6 +537,8 @@ void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** cr
     }
 }
 
+
+
 int menu() {
     printf("Choose an option:\n");
     printf("    1. Start Game\n");
@@ -548,9 +551,7 @@ int menu() {
     return choice;
 }
 
-int main()
-{
-    SetConsoleOutputCP(65001);
+void Let_s_the_show_beggin(){
     srand(time(NULL));  // Initialize random seed
 
     int size = 0;
@@ -570,15 +571,15 @@ int main()
                             size_pos = 0; // Size of the position array
                         
                             t = generatePath(&size,&pos, &size_pos);
-                            if (t == NULL) { printf("Memory allocation failed\n"); return 1;}
+                            if (t == NULL) { printf("Memory allocation failed\n"); exit(1);}
                         
                             const int MAX_UNITS = 1000;
                         
                             Attacker** crab = malloc(sizeof(Attacker*) * MAX_UNITS);
-                            if (crab == NULL ) { printf("Erreur allocation crab\n"); return 1; }
+                            if (crab == NULL ) { printf("Erreur allocation crab\n"); exit(1); }
                         
                             Defender** monkey = malloc(sizeof(Defender*) * MAX_UNITS);
-                            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); return 1; }
+                            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); exit(1); }
                         
                             game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos);
 
@@ -618,6 +619,26 @@ int main()
             int banana;
             load_from_file(&t, &size, &size_c, &size_m, &banana, &crab, &monkey, &size_pos, output_file);
             game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos);
+            for (int i = 0; i < size_c; i++) {
+                if (crab[i] != NULL) {
+                    free(crab[i]);
+                }
+            }
+            free(crab);
+        
+            // Free the monkeys
+            for (int i = 0; i < size_m; i++) {
+                if (monkey[i] != NULL) {
+                    free(monkey[i]);
+                }
+            }
+            free(monkey);
+        
+            // Free the map
+            for (int i = 0; i < size; i++) {
+                free(t[i]);
+            }
+            free(t);
             break;
         case 3:
             exit(0);
@@ -625,6 +646,11 @@ int main()
             printf("Invalid choice. Please try again.\n");
             menu();
     }
+}
 
+int main()
+{
+    SetConsoleOutputCP(65001);
+    Let_s_the_show_beggin();
     return 0;
 }

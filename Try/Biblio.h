@@ -26,7 +26,7 @@ typedef struct{
     int level;
   }Attacker;
 
-  int choose(){
+int choose(){
     int choice;
     printf("Choose an option:\n");
     printf("    1. Continue\n");
@@ -58,3 +58,22 @@ int menu() {
     scanf("%d", &choice);
     return choice;
 }
+
+
+
+
+int** generatePath(int* nbsp, Position** pos, int* sizeofpos);
+void showPath(int** grid, int size);
+void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV);
+void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana,Attacker*** crab,Defender*** monkey,int* size_pos,char* output_file);
+void load_from_file(int*** t, int* size, int* size_c, int* size_m, int* banana, Attacker*** crab, Defender*** monkey, int* size_pos, char* input_file);
+void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** crab, Defender** monkey, int size_pos, Position** p);
+
+Defender* create_defender();
+Attacker* create_attacker();
+Defender* posMonkey(int** map, int size);
+void posInitCrabs(int** map, int size, Attacker* crab);
+void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos);
+void tree(int* banana, int* m, int** t, int size, Defender** monkey);
+void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, int** map);
+void Let_s_the_show_beggin();

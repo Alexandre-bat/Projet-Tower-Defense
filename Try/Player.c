@@ -1,4 +1,4 @@
-#include "Map&Files.c"
+#include "Biblio.h"
 
 // Function to create a new defender
 Defender* create_defender() {
@@ -187,6 +187,7 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
  
 
 
+
 void Let_s_the_show_beggin(){
     srand(time(NULL));  // Initialize random seed
 
@@ -207,15 +208,15 @@ void Let_s_the_show_beggin(){
                             size_pos = 0; // Size of the position array
                         
                             t = generatePath(&size,&pos, &size_pos);
-                            if (t == NULL) { printf("Memory allocation failed\n"); return 1;}
+                            if (t == NULL) { printf("Memory allocation failed\n"); exit(1);}
                         
                             const int MAX_UNITS = 1000;
                         
                             Attacker** crab = malloc(sizeof(Attacker*) * MAX_UNITS);
-                            if (crab == NULL ) { printf("Erreur allocation crab\n"); return 1; }
+                            if (crab == NULL ) { printf("Erreur allocation crab\n"); exit(1); }
                         
                             Defender** monkey = malloc(sizeof(Defender*) * MAX_UNITS);
-                            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); return 1; }
+                            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); exit(1); }
                         
                             game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos);
 

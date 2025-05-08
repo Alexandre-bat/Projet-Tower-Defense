@@ -1,5 +1,21 @@
-cible : prerequis prerequis
+#Nom de l'exécutable
+PROG = PROJET-TOWER-DEFENSE
 
-hello : Main.c Player.c Map&Files.c
-	gcc -o hello Player.c Map&Files.c Main.c -lm -lpthread -Wall -Wextra -Werror
+# Fichiers sources
+SRC = main.c Map&Files.c Player.c
 
+# Options de compilation
+CFLAGS = -Wall -Wextra -g
+LDFLAGS = -I.
+
+# Règle par défaut : compile puis exécute
+all: $(PROG)
+    ./$(PROG)
+
+# Compilation de l'exécutable
+$(PROG): $(SRC) principal.h
+    gcc $(CFLAGS) -o $(PROG) $(SRC) $(LDFLAGS)
+
+# Nettoyage des fichiers générés
+clean:
+    rm -f $(PROG)
