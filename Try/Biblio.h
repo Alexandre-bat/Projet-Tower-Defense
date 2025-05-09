@@ -26,49 +26,15 @@ typedef struct{
     int level;
   }Attacker;
 
-int choose(){
-    int choice;
-    printf("Choose an option:\n");
-    printf("    1. Continue\n");
-    printf("    2. Save\n");
-    printf("Enter your choice: ");
-    
-    scanf("%d", &choice);
-    switch (choice) {
-        case 1:
-            return 1; // Continue the game
-        case 2:
-            // Call the save function here
-            printf("Game saved.\n"); // To do
-            return 2; // Save the game
-        default:
-            printf("Invalid choice. Please try again.\n");
-            choose();
-    }
-}
 
-int menu() {
-    printf("Choose an option:\n");
-    printf("    1. Start Game\n");
-    printf("    2. Save\n");
-    printf("    3. Exit\n");
-    printf("Enter your choice: ");
-    
-    int choice;
-    scanf("%d", &choice);
-    return choice;
-}
-
-
-
-
+int choose();
+int menu();
 int** generatePath(int* nbsp, Position** pos, int* sizeofpos);
 void showPath(int** grid, int size);
 void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV);
-void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana,Attacker*** crab,Defender*** monkey,int* size_pos,char* output_file);
-void load_from_file(int*** t, int* size, int* size_c, int* size_m, int* banana, Attacker*** crab, Defender*** monkey, int* size_pos, char* input_file);
-void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** crab, Defender** monkey, int size_pos, Position** p);
-
+void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,char* output_file);
+void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,char* input_file);
+void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv);
 Defender* create_defender();
 Attacker* create_attacker();
 Defender* posMonkey(int** map, int size);
