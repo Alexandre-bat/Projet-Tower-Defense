@@ -1,5 +1,44 @@
 #include "Biblio.h"
 
+
+
+int choose(){
+    int choice;
+    printf("Choose an option:\n");
+    printf("    1. Continue\n");
+    printf("    2. Save\n");
+    printf("Enter your choice: ");
+    
+    scanf("%d", &choice);
+    switch (choice) {
+        case 1:
+            return 1; // Continue the game
+        case 2:
+            // Call the save function here
+            printf("Game saved.\n"); // To do
+            return 2; // Save the game
+        default:
+            printf("Invalid choice. Please try again.\n");
+            return choose();
+    }
+}
+
+int menu() {
+    printf("Choose an option:\n");
+    printf("    1. Start Game\n");
+    printf("    2. Save\n");
+    printf("    3. Exit\n");
+    printf("Enter your choice: ");
+    
+    int choice;
+    scanf("%d", &choice);
+    return choice;
+}
+
+
+
+
+
 // Function to create a new defender
 Defender* create_defender() {
 
@@ -198,48 +237,49 @@ void Let_s_the_show_beggin(){
     Position* pos = NULL;
     int size_pos = 0; // Size of the position array
     int** t = NULL;
+    int king_hp;
     Attacker** crab = NULL;
     Defender** monkey = NULL;
 
-    int rand = menu();
-    switch (rand) {
-        case 1:
-                        
-                            size_pos = 0; // Size of the position array
-                        
-                            t = generatePath(&size,&pos, &size_pos);
-                            if (t == NULL) { printf("Memory allocation failed\n"); exit(1);}
-                        
-                            const int MAX_UNITS = 1000;
-                        
-                            Attacker** crab = malloc(sizeof(Attacker*) * MAX_UNITS);
-                            if (crab == NULL ) { printf("Erreur allocation crab\n"); exit(1); }
-                        
-                            Defender** monkey = malloc(sizeof(Defender*) * MAX_UNITS);
-                            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); exit(1); }
-                        
-                            game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos);
+    int what_a_choise = menu();
+    switch (what_a_choise) {
+        case 1:        
+            size_pos = 0; // Size of the position array
+        
+            t = generatePath(&size,&pos, &size_pos);
+            if (t == NULL) { printf("Memory allocation failed\n"); exit(1);}
+        
+            const int MAX_UNITS = 1000;
+        
+            crab = malloc(sizeof(Attacker*) * MAX_UNITS);
+            if (crab == NULL ) { printf("Erreur allocation crab\n"); exit(1); }
+        
+            monkey = malloc(sizeof(Defender*) * MAX_UNITS);
+            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); exit(1); }
+        	
+            king_hp = rand()%5+1;	
+            game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos, king_hp);
 
-                            for (int i = 0; i < size_c; i++) {
-                                if (crab[i] != NULL) {
-                                    free(crab[i]);
-                                }
-                            }
-                            free(crab);
-                        
-                            // Free the monkeys
-                            for (int i = 0; i < size_m; i++) {
-                                if (monkey[i] != NULL) {
-                                    free(monkey[i]);
-                                }
-                            }
-                            free(monkey);
-                        
-                            // Free the map
-                            for (int i = 0; i < size; i++) {
-                                free(t[i]);
-                            }
-                            free(t);
+            for (int i = 0; i < size_c; i++) {
+                if (crab[i] != NULL) {
+                    free(crab[i]);
+                }
+            }
+            free(crab);
+        
+            // Free the monkeys
+            for (int i = 0; i < size_m; i++) {
+                if (monkey[i] != NULL) {
+                    free(monkey[i]);
+                }
+            }
+            free(monkey);
+        
+            // Free the map
+            for (int i = 0; i < size; i++) {
+                free(t[i]);
+            }
+            free(t);
             break;
         case 2:
             // Call the save function here
@@ -254,8 +294,8 @@ void Let_s_the_show_beggin(){
                 fclose(test);
             }
             int banana;
-            load_from_file(&t, &size, &size_c, &size_m, &banana, &crab, &monkey, &size_pos, output_file);
-            game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos);
+            load_from_file(&t, &size, &size_c, &size_m, &banana, &crab, &monkey, &size_pos, &king_hp, output_file);
+            game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos, king_hp);
             for (int i = 0; i < size_c; i++) {
                 if (crab[i] != NULL) {
                     free(crab[i]);
