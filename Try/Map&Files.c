@@ -162,10 +162,10 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
 
 
 
-void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana,Attacker*** crab,Defender*** monkey,int* size_pos,char* output_file) {
+void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,char* output_file) {
 	FILE* file = fopen(output_file, "w");
 	if (file == NULL) {
-		perror("Erreur ouverture fichier");
+		perror("File opening error");
 		return;
 	}
 
@@ -183,6 +183,8 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana,Attacke
 	fwrite(banana, sizeof(int), 1, file);
 
 	fwrite(size_pos, sizeof(int), 1, file);
+	
+	fwrite(king_hp, sizeof(int), 1, file);
 
 	for (int i = 0; i < *size_c; i++) {
 		fwrite(&(*crab)[i]->pos.x, sizeof(int), 1, file);
@@ -203,26 +205,26 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana,Attacke
 	fclose(file);
 }
 
-void load_from_file(int*** t, int* size, int* size_c, int* size_m, int* banana, Attacker*** crab, Defender*** monkey, int* size_pos, char* input_file) {
+void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,char* input_file) {
     FILE* file = fopen(input_file, "r");
     if (file == NULL) {
-        perror("Erreur lors de l'ouverture du fichier");
+        perror("Error opening file");
         return;
     }
 
-    // Lire 'size' de t
+    // Read 'size' of t
     fread(size, sizeof(int), 1, file);
 
-    // Allouer de la mémoire pour t (tableau de pointeurs vers des tableaux d'entiers)
+    // Allocate memory for t (array of pointers to arrays of integers)
     *t = (int**)malloc(*size * sizeof(int*));
     for (int i = 0; i < *size; i++) {
         (*t)[i] = (int*)malloc(*size * sizeof(int));
     }
 
-    // Lire les données de t (tableau de pointeurs vers des tableaux d'entiers)
+    // Read data from t (array of pointers to integer arrays)
     for (int i = 0; i < *size; i++) {
         int sub_size;
-        fread(&sub_size, sizeof(int), 1, file);  // Taille du sous-tableau
+        fread(&sub_size, sizeof(int), 1, file);  // Sub-array size
         if (sub_size != *size) {
             perror("Incohérence dans la taille des sous-tableaux");
             return;
@@ -232,13 +234,15 @@ void load_from_file(int*** t, int* size, int* size_c, int* size_m, int* banana, 
         }
     }
 
-    // Lire les entiers supplémentaires
+    // Read the additional integers
     fread(size_c, sizeof(int), 1, file);
     fread(size_m, sizeof(int), 1, file);
     fread(banana, sizeof(int), 1, file);
 
-    // Lire les tableaux crab (Attacker) et monkey (Defender)
-    fread(size_pos, sizeof(int), 1, file);  // Taille des tableaux
+    // Read the crab (Attacker) and monkey (Defender) tables
+    fread(size_pos, sizeof(int), 1, file);
+
+    fread(king_hp, sizeof(int), 1, file);
 
     *crab = (Attacker**)malloc(*size_c * sizeof(Attacker*));
     for (int i = 0; i < *size_c; i++) {
@@ -263,17 +267,17 @@ void load_from_file(int*** t, int* size, int* size_c, int* size_m, int* banana, 
     fclose(file);
 }
 
-void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** crab, Defender** monkey, int size_pos, Position** p) {
+void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv) {
     // Game logic goes here
     int i = -1;
-    int KingMonkeyPv = rand()%5 + 1; // Random HP for the King Monkey
-    printf("King Monkey HP: %d\n", KingMonkeyPv);
+    printf("King Flower HP: %d\n", King_Monkey_Pv);
         while(1){  // Limit to 100 iterations for safety
             i++;
             int choice = choose(); // Call the choose function
             if (choice == 2) {
                 char* output_file = "test_output.txt";
-                save_in_file(&t, &size, size_c, size_m, &banana, &crab, &monkey, &size_pos, output_file);
+             	save_in_file(&t, &size, size_c, size_m, &banana, &crab, &monkey, &size_pos, &King_Monkey_Pv, output_file);
+             	system("make");
                 break; // Exit the game loop if the user chooses to save
             }
             if( i%3 == 0){ 
@@ -284,7 +288,7 @@ void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** cr
             }
 
             showPath(t, size);
-            if (size_c > 0) {  // Simplified condition
+            if (*size_c > 0) {  // Simplified condition
 
                money(crab, monkey, size_c, size_m, &banana, t);
               
@@ -294,7 +298,7 @@ void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** cr
             for(int j = 0; j < *size_c; j++){
                 if (crab[j] != NULL) {
                     mooveCrabs(t, size, crab[j],*p, size_pos);
-                    verifyWinCrab(crab,j, size, t,&KingMonkeyPv);
+                    verifyWinCrab(crab,j, size, t,&King_Monkey_Pv);
                 }
             }
 
