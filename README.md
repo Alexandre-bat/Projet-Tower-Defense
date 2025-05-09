@@ -7,5 +7,6 @@ This project is a small 'Tower Defense'-style video game in which monkeys defend
 ```
 git clone https://github.com/Alexandre-bat/Projet-Tower-Defense.git
 cd Projet-Tower-Defense
+cd Try
 make
 ```
