@@ -21,19 +21,20 @@ typedef struct{
 } Attacker;
 
 void save_in_file(
-    int*** t,
-    int* size,
-    int* size_c,
-    int* size_m,
-    int* banana,
-    Attacker*** crab,
-    Defender*** monkey,
-    int* size_pos,
-    char* output_file
+	int*** t,
+	int* size,
+	int* size_c,
+	int* size_m,
+	int* banana,
+	Attacker*** crab,
+	Defender*** monkey,
+	int* size_pos,
+	int* king_hp,
+	char* output_file
 ) {
 	FILE* file = fopen(output_file, "w");
 	if (file == NULL) {
-		perror("Erreur ouverture fichier");
+		perror("File opening error");
 		return;
 	}
 
@@ -51,6 +52,8 @@ void save_in_file(
 	fwrite(banana, sizeof(int), 1, file);
 
 	fwrite(size_pos, sizeof(int), 1, file);
+	
+	fwrite(king_hp, sizeof(int), 1, file);
 
 	for (int i = 0; i < *size_c; i++) {
 		fwrite(&(*crab)[i]->pos.x, sizeof(int), 1, file);
@@ -72,35 +75,36 @@ void save_in_file(
 }
 
 void load_from_file(
-    int*** t, 
-    int* size, 
-    int* size_c, 
-    int* size_m, 
-    int* banana, 
-    Attacker*** crab, 
-    Defender*** monkey, 
-    int* size_pos, 
-    char* input_file
+	int*** t, 
+	int* size, 
+	int* size_c, 
+	int* size_m, 
+	int* banana, 
+	Attacker*** crab, 
+	Defender*** monkey, 
+	int* size_pos,
+	int* king_hp,
+	char* input_file
 ) {
     FILE* file = fopen(input_file, "r");
     if (file == NULL) {
-        perror("Erreur lors de l'ouverture du fichier");
+        perror("Error opening file");
         return;
     }
 
-    // Lire 'size' de t
+    // Read 'size' of t
     fread(size, sizeof(int), 1, file);
 
-    // Allouer de la mémoire pour t (tableau de pointeurs vers des tableaux d'entiers)
+    // Allocate memory for t (array of pointers to arrays of integers)
     *t = (int**)malloc(*size * sizeof(int*));
     for (int i = 0; i < *size; i++) {
         (*t)[i] = (int*)malloc(*size * sizeof(int));
     }
 
-    // Lire les données de t (tableau de pointeurs vers des tableaux d'entiers)
+    // Read data from t (array of pointers to integer arrays)
     for (int i = 0; i < *size; i++) {
         int sub_size;
-        fread(&sub_size, sizeof(int), 1, file);  // Taille du sous-tableau
+        fread(&sub_size, sizeof(int), 1, file);  // Sub-array size
         if (sub_size != *size) {
             perror("Incohérence dans la taille des sous-tableaux");
             return;
@@ -110,13 +114,15 @@ void load_from_file(
         }
     }
 
-    // Lire les entiers supplémentaires
+    // Read the additional integers
     fread(size_c, sizeof(int), 1, file);
     fread(size_m, sizeof(int), 1, file);
     fread(banana, sizeof(int), 1, file);
 
-    // Lire les tableaux crab (Attacker) et monkey (Defender)
-    fread(size_pos, sizeof(int), 1, file);  // Taille des tableaux
+    // Read the crab (Attacker) and monkey (Defender) tables
+    fread(size_pos, sizeof(int), 1, file);
+
+    fread(king_hp, sizeof(int), 1, file);
 
     *crab = (Attacker**)malloc(*size_c * sizeof(Attacker*));
     for (int i = 0; i < *size_c; i++) {
@@ -143,9 +149,9 @@ void load_from_file(
 
 
 int exemple_function() {
-    // Test de la fonction save_in_file
+    // Testing the save_in_file function
 
-    // Créer un tableau t de pointeurs vers des tableaux d'entiers
+    // Create an array t of pointers to integer arrays
     int size = 3;
     int** t = (int**)malloc(size * sizeof(int*));
     for (int i = 0; i < size; i++) {
@@ -155,13 +161,13 @@ int exemple_function() {
         }
     }
 
-    // Créer des entiers supplémentaires
-    int size_c = 2;  // Taille du tableau crab
-    int size_m = 2;  // Taille du tableau monkey
+    // Create additional integers
+    int size_c = 2;
+    int size_m = 2;
     int banana = 42;
     int size_pos = 7;
 
-    // Créer des tableaux crab (Attacker) et monkey (Defender)
+    // Create crab (Attacker) and monkey (Defender) tables
     Attacker** crab = malloc(1000 * sizeof(Defender*));;
     crab[0] = (Attacker*)malloc(sizeof(Attacker));
     crab[1] = (Attacker*)malloc(sizeof(Attacker));
@@ -182,12 +188,10 @@ int exemple_function() {
     monkey[1]->pos.x = 4; monkey[1]->pos.y = 4;
     monkey[1]->dmg = 8; monkey[1]->mana = 80; monkey[1]->level = 2;
 
-    // Appeler la fonction save_in_file pour enregistrer les données dans un fichier
     char* output_file = "test_output.txt";
     save_in_file(&t, &size, &size_c, &size_m, &banana, &crab, &monkey, &size_pos, output_file);
     
 
-    // Libération de la mémoire allouée
     for (int i = 0; i < size; i++) {
         free(t[i]);
     }
@@ -198,7 +202,7 @@ int exemple_function() {
         free(monkey[i]);
     }
 
-    printf("Les données ont été enregistrées dans '%s'.\n", output_file);
+    printf("The data was recorded in '%s'.\n", output_file);
     
     
     int** t_loaded;
@@ -207,7 +211,6 @@ int exemple_function() {
     Defender** monkey_loaded;
     load_from_file(&t_loaded, &size_loaded, &size_c_loaded, &size_m_loaded, &banana_loaded, &crab_loaded, &monkey_loaded, &size_pos_loaded, output_file);
     
-    // Afficher une partie des données pour vérifier
     printf("banana: %d\n", banana_loaded);
     printf("crab[0]: pos=(%d,%d) dmg=%d hp=%d level=%d\n",
            crab_loaded[0]->pos.x, crab_loaded[0]->pos.y,
@@ -217,7 +220,6 @@ int exemple_function() {
            monkey_loaded[1]->pos.x, monkey_loaded[1]->pos.y,
            monkey_loaded[1]->dmg, monkey_loaded[1]->mana, monkey_loaded[1]->level);
 
-    // Libérations
     for (int i = 0; i < size_loaded; i++) free(t_loaded[i]);
     free(t_loaded);
 
