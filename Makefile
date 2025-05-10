@@ -2,7 +2,7 @@
 PROG = PROJET-TOWER-DEFENSE 
 
 # Fichiers sources 
-SRC = Main.c MapFiles.c Player.c
+SRC = main.c MapFiles.c Player.c
 
 # Options de compilation 
 CFLAGS = -Wall -Wextra -g 
