@@ -82,7 +82,6 @@ int menu() {
                     printf("Let the show begin!\n"); // To do: implement game start functionality
                     return 1;
                 case 2:
-                    printf("Game saved.\n"); // To do: implement save functionality
                     return 2;
                 case 3:
                     printf("Au revoir"); // To do: implement exit functionality
@@ -426,7 +425,6 @@ void Let_s_the_show_beggin(){
             break;
         case 2:
             // Call the save function here
-            printf("Game saved.\n"); // To do
             char* output_file = "test_output.txt";
             FILE* test = fopen(output_file, "r");
             if (test == NULL || fgetc(test) == EOF) {
