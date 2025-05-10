@@ -1,5 +1,6 @@
 #include "Biblio.h"
 
+
 int** generatePath(int* s, Position** pos, int* sizeofpos) {
     int size;
     printf("What is the size of the map (11 - 51)? : ");
@@ -112,6 +113,7 @@ int** generatePath(int* s, Position** pos, int* sizeofpos) {
     return grid;
 }
 
+
 void showPath(int** grid, int size) {int back;
     srand(time(NULL));
 printf("O  ");
@@ -153,6 +155,7 @@ for (int i = 0; i < size; i++) {
 }
 }
 
+
 void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV) {
     for(int i = 0; i < size_c; i++) {
         if(crab[i] != NULL && crab[i]->pos.x == sizeMap-1) {
@@ -186,10 +189,6 @@ void verifyWinDefender(Attacker** crab, int size_c) {
     system("make");
     exit(12);  // End of the game
 }
-
-
-
-
 
 
 void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,char* output_file) {
@@ -235,6 +234,7 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attack
 
 	fclose(file);
 }
+
 
 void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,char* input_file) {
     FILE* file = fopen(input_file, "r");
@@ -297,6 +297,7 @@ void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana
 
     fclose(file);
 }
+
 
 void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv) {
     // Game logic goes here

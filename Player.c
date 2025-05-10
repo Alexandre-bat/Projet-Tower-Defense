@@ -1,10 +1,12 @@
 #include "Biblio.h"
 
+
 void clear_input_buffer() {
     int ch;
     while ((ch = getchar()) != '\n' && ch != EOF); // Clear the input buffer
     // This will consume all characters until a newline or end of file (EOF) is found
 }
+
 
 int King_HP() {
     char input[50];
@@ -31,6 +33,7 @@ int King_HP() {
     printf("Error reading input.\n");
     exit(15);
 }
+
 
 int choose() {
     char input[50];
@@ -118,6 +121,7 @@ Defender* create_defender() {
   return new_defender;
 }
 
+
 // Function to create a new attacker
 Attacker* create_attacker(){
 
@@ -133,6 +137,7 @@ Attacker* create_attacker(){
     new_attacker->level = 0;
     return new_attacker;
 }
+
 
 Defender* posMonkey(int** map, int size) {
     Defender* monkey = create_defender();
@@ -188,6 +193,7 @@ Defender* posMonkey(int** map, int size) {
         exit(14);
     }
 }
+
 
 void posInitCrabs(int** map, int size, Attacker* crab) {
     // Check if the crab is valid
@@ -257,6 +263,7 @@ void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos)
     }
 }
 
+
 void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, int** map) {
     if (*size_c == 0 || *size_m == 0) return;
     for (int i = 0; i < *size_m; i++) {
@@ -296,6 +303,7 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
     }
 }
 
+// Function to display the tree menu for buying/upgrading monkeys
 void tree(int* banana, int* m, int** t, int size, Defender** monkey) {
     int choice;
     if(*banana <= 0 && *m == 0) {
@@ -368,7 +376,6 @@ void tree(int* banana, int* m, int** t, int size, Defender** monkey) {
 }
 
 
-
 void Let_s_the_show_beggin(){
     srand(time(NULL));  // Initialize random seed
 
@@ -427,13 +434,11 @@ void Let_s_the_show_beggin(){
             // Call the save function here
             char* output_file = "test_output.txt";
             FILE* test = fopen(output_file, "r");
-            if (test == NULL || fgetc(test) == EOF) {
-                printf("Save file is empty or doesn't exist. Starting new game...\n");
-                fclose(test);
+            if (test == NULL) {
+                printf("Save file doesn't exist. Starting new game...\n");
                 exit(9);
-            } else {
-                fclose(test);
             }
+            fclose(test);
             int banana;
             load_from_file(&t, &size, &size_c, &size_m, &banana, &crab, &monkey, &size_pos, &k_hp , output_file);
             game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos, k_hp );
