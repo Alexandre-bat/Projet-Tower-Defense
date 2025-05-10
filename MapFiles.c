@@ -107,7 +107,7 @@ int** generatePath(int* s, Position** pos, int* sizeofpos) {
         (*pos)[i].y = posBis[i].y;  
     }
 
-    free(posBis);  // Libérer la mémoire allouée pour posBis
+    free(posBis);  // Free memory allocated for posBis
     
     return grid;
 }
@@ -119,6 +119,7 @@ for (int i = 1; i < size+1; i++){
     printf("%2d  ",i);
 }
 
+//Show the path with the emojis
 for (int i = 0; i < size; i++) {
     printf("\n%2d ",i+1);
     for (int j = 0; j < size; j++) {
@@ -177,13 +178,13 @@ void verifyWinDefender(Attacker** crab, int size_c) {
 
     for (int i = 0; i < size_c; i++) {
         if (crab[i] != NULL) {
-            return;  // Au moins un crab est vivant
+            return;  // At least one crab is still alive
         }
     }
 
     printf("Victory! All crabs have been defeated!\n");
     system("make");
-    exit(12);  // Fin du jeu avec succès
+    exit(12);  // End of the game
 }
 
 
@@ -207,6 +208,7 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attack
 		}
 	}
 
+    // Write the additional integers
 	fwrite(size_c, sizeof(int), 1, file);
 	fwrite(size_m, sizeof(int), 1, file);
 	fwrite(banana, sizeof(int), 1, file);
@@ -215,7 +217,7 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attack
 	
 	fwrite(king_hp, sizeof(int), 1, file);
 
-	for (int i = 0; i < *size_c; i++) {
+	for (int i = 0; i < *size_c; i++) { // Loop through crab array
 		fwrite(&(*crab)[i]->pos.x, sizeof(int), 1, file);
 		fwrite(&(*crab)[i]->pos.y, sizeof(int), 1, file);
 		fwrite(&(*crab)[i]->dmg, sizeof(int), 1, file);
@@ -223,7 +225,7 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attack
 		fwrite(&(*crab)[i]->level, sizeof(int), 1, file);
 	}
 
-	for (int i = 0; i < *size_m; i++) {
+	for (int i = 0; i < *size_m; i++) { // Loop through monkey array
 		fwrite(&(*monkey)[i]->pos.x, sizeof(int), 1, file);
 		fwrite(&(*monkey)[i]->pos.y, sizeof(int), 1, file);
 		fwrite(&(*monkey)[i]->dmg, sizeof(int), 1, file);

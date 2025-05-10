@@ -2,7 +2,8 @@
 
 void clear_input_buffer() {
     int ch;
-    while ((ch = getchar()) != '\n' && ch != EOF);
+    while ((ch = getchar()) != '\n' && ch != EOF); // Clear the input buffer
+    // This will consume all characters until a newline or end of file (EOF) is found
 }
 
 int King_HP() {
@@ -13,9 +14,9 @@ int King_HP() {
 
     printf("How many HP should the king have? (%d-%d)\n", MIN_HP, MAX_HP);
 
-    if (fgets(input, sizeof(input), stdin)) {
-        if (sscanf(input, "%d", &hp) == 1) {
-            if (hp >= MIN_HP && hp <= MAX_HP) {
+    if (fgets(input, sizeof(input), stdin)) { // Read input from the user
+        if (sscanf(input, "%d", &hp) == 1) { // Try to parse the input as an integer
+            if (hp >= MIN_HP && hp <= MAX_HP) { // Check if the input is within the acceptable range
                 return hp;
             } else {
                 printf("HP must be between %d and %d. Please try again.\n", MIN_HP, MAX_HP);
@@ -46,19 +47,19 @@ int choose() {
                 case 0:
                     return 0;
                 case 1:
-                    printf("Game saved.\n"); // À remplacer par l'appel à la vraie fonction de sauvegarde
+                    printf("Game saved.\n"); // To do: implement save functionality
                     return 1;
                 default:
-                    printf("Invalid choice. Please try again.\n");
+                    printf("Invalid choice. Please try again.\n"); // Invalid choice handling
                     return choose();
             }
         } else {
-            printf("Invalid input. Please enter a number.\n");
+            printf("Invalid input. Please enter a number.\n"); // Input parsing error handling
             return choose();
         }
     }
 
-    //Rare case: fgets fails (EOF or error)
+    //Case: fgets fails (EOF or error)
     printf("fgets doesn't work");
     return 2;
 }
@@ -78,25 +79,25 @@ int menu() {
         if (sscanf(input, "%d", &choice) == 1) {
             switch (choice) {
                 case 1:
-                    printf("Let the show begin!\n");
+                    printf("Let the show begin!\n"); // To do: implement game start functionality
                     return 1;
                 case 2:
-                    printf("Game saved.\n");
+                    printf("Game saved.\n"); // To do: implement save functionality
                     return 2;
                 case 3:
-                    printf("Au revoir");
+                    printf("Au revoir"); // To do: implement exit functionality
                     return 3;
                 default:
-                    printf("Invalid choice. Please try again.\n");
+                    printf("Invalid choice. Please try again.\n"); // Invalid choice handling
                     return menu();
             }
         } else {
-            printf("Invalid input. Please enter a number.\n");
+            printf("Invalid input. Please enter a number.\n"); // Input parsing error handling
             return menu();
         }
     }
 
-    //Rare case: fgets fails (EOF or error)
+    //Case: fgets fails (EOF or error)
     printf("fgets doesn't work");
     return 3;
 }
@@ -143,7 +144,8 @@ Defender* posMonkey(int** map, int size) {
         printf("Enter the position of the monkey (x): ");
         scanf("%d", &x); 
         x -= 1;
-        if (x <= 0 || x > size - 1) {
+        // Validate the input for x
+        if (x <= 0 || x > size - 1) { 
             printf("Position must be between 2 and %d.\n", size);
             free(monkey);
             exit(11);
@@ -154,22 +156,25 @@ Defender* posMonkey(int** map, int size) {
         printf("Enter the position of the monkey (y): ");
         scanf("%d", &y); 
         y -= 1;
-        if (y < 0 || y > size - 1) {
+        // Validate the input for y
+        if (y < 0 || y > size - 1) { 
             printf("Position must be between 1 and %d.\n", size);
             exit(12);
         }
         clear_input_buffer();
-        
+        // Check if the position is valid
         if (map[y][x] == 1 || map[y][x] == 2 || map[y][y] == -1) {
             printf("Can't put a monkey here.\n");
             exit(13);
         }
-        
+
+        // Check if the position is too close to the crab spawn point
         if (x <= monkey->range) {
             printf("Cannot place monkey too close to crab spawn point.\n");
             exit(14);
         }
 
+        // Check if the position is adjacent to another monkey or crab
         if ((y > 0 && map[y-1][x] == 1) || (y < size-1 && map[y+1][x] == 1) || 
             (x > 0 && map[y][x-1] == 1) || (x < size-1 && map[y][x+1] == 1)) {
             map[y][x] = 2;
@@ -179,17 +184,23 @@ Defender* posMonkey(int** map, int size) {
             return monkey;
         }
 
+        // If the position is not valid, free the memory and exit
         printf("Monkey cannot be placed here.\n");
         exit(14);
     }
 }
 
 void posInitCrabs(int** map, int size, Attacker* crab) {
+    // Check if the crab is valid
+    if (crab == NULL) {
+        printf("Crab is NULL. Cannot initialize.\n");
+        exit(17);
+    }
     for (int i = 0; i < size; i++) {
         if (map[i][0] == 100 || map[i][0] == 1) {
         if(map[i][1] == 10){
             printf("Can't put a crab here.\n");
-            return;
+            exit(18);
         }
             map[i][0] = 10;
             crab->pos.x = 0;
@@ -204,41 +215,40 @@ void posInitCrabs(int** map, int size, Attacker* crab) {
 
 
 void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos) {
-    if (crab == NULL) return;  // Vérifier si le crabe est valide
-    if(p == NULL) return;  // Vérifier si le tableau de positions est valide
-    if(size_pos <= 0) return;  // Vérifier si la taille du tableau de positions est valide
+    if (crab == NULL) return;  // Check if crab is valid
+    if(p == NULL) return;  // Check if position array is valid 
+    if(size_pos <= 0) return;  // Check if position array size is valid
     int l = crab->level;
 
-    // Vérifier la position actuelle du crabe (assurer qu'il n'est pas hors limite)
+    // Check current crab position (ensure it's not out of bounds)
     if (map[crab->pos.y][crab->pos.x] == 10) {
-        // Si la position est valide, effectue un changement
-        map[crab->pos.y][crab->pos.x] = 1;  // Retirer le crabe de sa position actuelle
+        // If position is valid, make the change
+        map[crab->pos.y][crab->pos.x] = 1;  // Remove crab from current position
     }
     
-
-    // Vérifie si la position suivante est dans les limites
+    // Check if next position is within bounds
     if (l < size_pos && p[l].x >= 0 && p[l].y >= 0 && p[l].x < size && p[l].y < size) {
         printf("Crab moving to x: %d, y: %d\n", p[l].x, p[l].y);
-        crab->pos.x = p[l].x;  // Mettre à jour la position du crabe
+        crab->pos.x = p[l].x;  // Update crab position
         crab->pos.y = p[l].y;
-        crab->level++;  // Incrémenter le niveau du crabe
+        crab->level++;  // Increment crab level
 
-        // Si le crabe atteint la fin du niveau (conditions de victoire)
+        // If crab reaches end of level (victory conditions)
         if (crab->pos.x == size -1 && map[crab->pos.y][crab->pos.x + 1] == 100) {
-            map[crab->pos.y][crab->pos.x] = 0;  // Retirer le crabe du map
-            free(crab);  // Libérer la mémoire du crabe
-            crab = NULL;  // Définir le pointeur comme NULL
-            return;  // Sortir de la fonction
+            map[crab->pos.y][crab->pos.x] = 0;  // Remove crab from map
+            free(crab);  // Free crab memory
+            crab = NULL;  // Set pointer to NULL
+            return;  // Exit function
         }
 
-        // Restauration de l'ancienne position si elle était un point de départ (101)
+        // Restore old position if it was a starting point (101)
         if (map[crab->pos.y][crab->pos.x] == 0 && crab->pos.x == 0) {
-            map[crab->pos.y][crab->pos.x] = 101;  // Restaurer le point de départ
+            map[crab->pos.y][crab->pos.x] = 101;  // Restore starting point
         }
 
-        // Mettre à jour la nouvelle position du crabe sur la carte
+        // Update new crab position on map
         if (map[crab->pos.y][crab->pos.x] != 10) {
-            map[crab->pos.y][crab->pos.x] = 10;  // Marquer la position actuelle avec "10" pour le crabe
+            map[crab->pos.y][crab->pos.x] = 10;  // Mark current position with "10" for crab
         }
         
     } else {
@@ -251,7 +261,7 @@ void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos)
 void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, int** map) {
     if (*size_c == 0 || *size_m == 0) return;
     for (int i = 0; i < *size_m; i++) {
-        if (p[i] == NULL) continue;  // ⚠️ Sécurité anti-crash
+        if (p[i] == NULL) continue;  // ⚠️ Crash protection
 
         int e = p[i]->pos.x;
         int f = p[i]->pos.y;
@@ -260,7 +270,7 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
 
         int j = 0;
         while (j < *size_c) {
-            if (c[j] == NULL) { j++; continue; }  // ⚠️ Sécurité anti-crash
+            if (c[j] == NULL) { j++; continue; }  // ⚠️ Crash protection
 
             int o = c[j]->pos.x;
             int n = c[j]->pos.y;
@@ -273,11 +283,11 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
                     map[n][o] = 1;
                     (*banana) += 2;
                     free(c[j]);
-                    c[j] = NULL; // Libération de la mémoire
+                    c[j] = NULL; // ⚠️ Crash protection
                     for (int k = j; k < *size_c - 1; k++) {
                         c[k] = c[k + 1];
                     }
-                    c[*size_c - 1] = NULL; // Optionnel : nettoyage
+                    c[*size_c - 1] = NULL; // Nailify the last element
                     (*size_c)--;
                     continue;
                 }
@@ -300,10 +310,10 @@ void tree(int* banana, int* m, int** t, int size, Defender** monkey) {
     printf("Enter your choice: ");
     scanf("%d", &choice);
     clear_input_buffer();
-    switch(choice) {
-        case 1:
+    switch(choice) { // Handle user choice
+        case 1: 
             if((*banana) >= 2) {
-                monkey[*m] = posMonkey(t, size);
+                monkey[*m] = posMonkey(t, size); // Create a new monkey
                 if(monkey[*m] != NULL) {
                     *banana -= 2;
                     (*m)++;
@@ -320,7 +330,7 @@ void tree(int* banana, int* m, int** t, int size, Defender** monkey) {
                 scanf("%d", &monkey_id);
                 monkey_id--; // Convert to 0-based index
                 clear_input_buffer();
-                if(monkey_id >= 0 && monkey_id < *m && monkey[monkey_id] != NULL) {
+                if(monkey_id >= 0 && monkey_id < *m && monkey[monkey_id] != NULL) { // Check if monkey exists
                     printf("What do you want to upgrade?\n");
                     printf("1. Range (current: %d)\n", monkey[monkey_id]->range);
                     printf("2. Damage (current: %d)\n", monkey[monkey_id]->dmg);

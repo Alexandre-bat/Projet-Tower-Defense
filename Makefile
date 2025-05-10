@@ -1,10 +1,10 @@
-#Nom de l'exécutable 
+#Executable name 
 PROG = PROJET-TOWER-DEFENSE 
 
-# Fichiers sources 
+# Source files
 SRC = main.c MapFiles.c Player.c
 
-# Options de compilation 
+# Compilation options
 CFLAGS = -Wall -Wextra -g 
 LDFLAGS = -I. 
 
@@ -12,10 +12,10 @@ LDFLAGS = -I.
 all: $(PROG) 
 	./$(PROG) 
 	
-# Compilation de l'exécutable 
+# Default rule: compile then run  
 $(PROG): $(SRC) Biblio.h 
 	gcc $(CFLAGS) -o $(PROG) $(SRC) $(LDFLAGS) 
 	
-# Nettoyage des fichiers générés 
+# Cleaning generated files
 clean: 
 	rm -f $(PROG)
