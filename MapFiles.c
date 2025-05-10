@@ -1,102 +1,114 @@
 #include "Biblio.h"
 
-int** generatePath(int* nbsp, Position** pos, int* sizeofpos) {
+int** generatePath(int* s, Position** pos, int* sizeofpos) {
     int size;
-    printf("What is the size of the map (15 - 50)? : ");
+    printf("What is the size of the map (11 - 51)? : ");
     scanf("%d", &size);
-    if (size < 15 || size > 50) {
-        printf("Size must be between 15 and 50.\n");
-        printf("Error\n");
+    clear_input_buffer();
+    if (size < 11 || size > 51) {
+        printf("Size must be between 11 and 99.\n");
         exit(1);
     }
+    // Get size 
+    *s = size;
+    srand(time(NULL));	
     
-    if (size <= 0) {
-        printf("Size must be positive.\n");
-        printf("Error\n");
-        exit(1);
+    int** grid = malloc(size * sizeof(int*));
+    if (grid == NULL) {
+        printf("Erreur d'allocation mémoire.\n");
+        exit(2);
     }
 
-    *nbsp = size; // Allocation de la mémoire pour la grille
-
-    int** grid = malloc(size * sizeof(int*));
     for (int i = 0; i < size; i++) {
         grid[i] = malloc(size * sizeof(int));
-    }
-    if (grid == NULL) {
-        printf("Erreur memory allocation.\n");
-        printf("Error\n");
-        exit(1);
-    }
-
-    int currentRow = rand() % size; // Choisir une ligne aléatoire pour commencer
-    if (currentRow == 0) {
-        currentRow = 1; // Assurez-vous que la ligne est au moins 1
-    }
-
-    int lastDirection = 0; // 0: tout droit, 1: haut, 2: bas
-
-    // Initialisation de la grille avec des espaces vides
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            grid[i][j] = 0;  // Espaces vides
+        if (grid[i] == NULL) {
+            printf("Erreur d'allocation mémoire pour la ligne %d.\n", i);
+            exit(3);
         }
     }
+    // Creat **grid for stock the path
 
-    Position* posBis = malloc(sizeof(Position) * 2 * size); // Allocation temporaire pour les positions
-    *sizeofpos = 0;  // Initialiser le compteur de positions
+    int currentRow = rand() % (size/3) +size/3;  
+    int lastDirection = 0;
+    int pastDirection = 0; 
+    
 
-    // Génération du chemin de gauche à droite (au lieu de droite à gauche pour plus de clarté)
-    for (int col = 0; col < size; col++) {
-        grid[currentRow][col] = 1; // Marquer le chemin
-        posBis[*sizeofpos].x = col;  // Sauvegarder la position
-        posBis[*sizeofpos].y = currentRow;
-        (*sizeofpos)++;
 
-        // Si ce n'est pas la dernière colonne, on peut essayer de faire un virage
-        if (col > 0 && col < size - 1) {
-            int direction = rand() % 4; // Choisir une direction aléatoire
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            grid[i][j] = 0;
+        }
+    }
+    
+    int col = 1;
+    int direction;
+    grid[currentRow][0] = 100;
+    grid[currentRow][1] = 1;
+    
+    Position* posBis = malloc(sizeof(Position) * 2 * size); // Temporary allowance for positions
+    *sizeofpos = 2;
+    posBis[0].x = 0;
+    posBis[0].y = currentRow;    
+    posBis[1].x = 1;
+    posBis[1].y = currentRow;
+    
+    while (col != 0) {
+        direction = rand() % 3; 
 
-            if (direction == 0 && lastDirection != 1 && lastDirection != 2) {
-                int upOrDown = rand() % 2; // 0: haut, 1: bas
-                if (upOrDown == 0 && currentRow > 0) { // Aller vers le haut
-                    currentRow--;
-                    grid[currentRow][col] = 1; // Marquer la case du dessus
+        if (direction == 1 && currentRow > 3 && pastDirection!=2 && lastDirection != 2) {  
+            currentRow--;
+            grid[currentRow][col] = 1;
+            posBis[*sizeofpos].x = col;
+            posBis[*sizeofpos].y = currentRow;
+            (*sizeofpos)++;
+            lastDirection = 1;
+            pastDirection=1;
+        } else if (direction == 2 && currentRow < size - 3 && pastDirection!=1 && lastDirection != 1) {
+            currentRow++;
+            grid[currentRow][col] = 1;
+            posBis[*sizeofpos].x = col;
+            posBis[*sizeofpos].y = currentRow;
+            (*sizeofpos)++;
+            lastDirection = 2;
+            pastDirection=2;
+        } else {
+        		if(lastDirection == 0){
+        		pastDirection=0;
+        		}
+            col++;
+            lastDirection = 0;
+            grid[currentRow][col] = 1;
+            posBis[*sizeofpos].x = col;
+            posBis[*sizeofpos].y = currentRow;
+            (*sizeofpos)++;
+            lastDirection = 0;
+                if (col == size-1) {
+                    grid[currentRow][col] = -1;
                     posBis[*sizeofpos].x = col;
                     posBis[*sizeofpos].y = currentRow;
                     (*sizeofpos)++;
-                    lastDirection = 1;
-                } else if (upOrDown == 1 && currentRow < size - 1) { // Aller vers le bas
-                    currentRow++;
-                    grid[currentRow][col] = 1; // Marquer la case du dessous
-                    posBis[*sizeofpos].x = col;
-                    posBis[*sizeofpos].y = currentRow;
-                    (*sizeofpos)++;
-                    lastDirection = 2;
-                } else {
-                    lastDirection = 0;
-                }
-            } else {
-                lastDirection = 0;
+                    col = 0;
             }
         }
     }
-
-    // Allocation de la mémoire pour les positions finales
+    // Generate the path and put it in **grid
+    
+    
+    // Memory allocation for end positions
     *pos = malloc(sizeof(Position) * (*sizeofpos));
     if (*pos == NULL) {
         printf("Memory allocation error for positions.\n");
-        exit(1);
-    }
-
-    // Copier les positions de posBis dans *pos
+        exit(4);
+        }
+        
+    // Copy posBis positions to *pos
     for (int i = 0; i < *sizeofpos; i++) {
-        (*pos)[i].x = posBis[i].x;  // Copier la position x
-        (*pos)[i].y = posBis[i].y;  // Copier la position y
+        (*pos)[i].x = posBis[i].x;  
+        (*pos)[i].y = posBis[i].y;  
     }
-    // Afficher les positions générées
-    printf("\n");
 
     free(posBis);  // Libérer la mémoire allouée pour posBis
+    
     return grid;
 }
 
@@ -110,9 +122,9 @@ for (int i = 1; i < size+1; i++){
 for (int i = 0; i < size; i++) {
     printf("\n%2d ",i+1);
     for (int j = 0; j < size; j++) {
-        if(j == 0 && grid[i][0] == 1){
+        if(j == 0 && grid[i][0] == 100){
             printf("\xF0\x9F\x86\x96  ");
-        }else if(j == size-1 && grid[i][size-1] == 1){
+        }else if(j == size-1 && grid[i][size-1] == -1){
             printf("\xF0\x9F\x8C\xBA  ");
         }else if (grid[i][j] == 1) {
             printf("\xF0\x9F\x94\xB4  ");
@@ -147,9 +159,10 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
             printf("The King Monkey has lost 1 HP! and have %d PV\n", *PV);
             if( *PV <= 0) {
                 printf("Game Over! The King Monkey has been defeated!\n");
-                exit(1);
+                system("make");
+                exit(5);
             }
-            map[crab[i]->pos.y][crab[i]->pos.x] = 1; // Mark the end
+            map[crab[i]->pos.y][crab[i]->pos.x] = -1; // Mark the end
             crab[i] = NULL; // Set pointer to NULL
             for (int j = i; j < size_c - 1; j++) {
                 crab[j] = crab[j + 1]; // Shift the array to remove the crab
@@ -157,6 +170,22 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
         }
     }
 }
+
+
+void verifyWinDefender(Attacker** crab, int size_c) {
+    if (size_c <= 0) return;
+
+    for (int i = 0; i < size_c; i++) {
+        if (crab[i] != NULL) {
+            return;  // Au moins un crab est vivant
+        }
+    }
+
+    printf("Victory! All crabs have been defeated!\n");
+    system("make");
+    exit(12);  // Fin du jeu avec succès
+}
+
 
 
 
@@ -198,7 +227,7 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attack
 		fwrite(&(*monkey)[i]->pos.x, sizeof(int), 1, file);
 		fwrite(&(*monkey)[i]->pos.y, sizeof(int), 1, file);
 		fwrite(&(*monkey)[i]->dmg, sizeof(int), 1, file);
-		fwrite(&(*monkey)[i]->mana, sizeof(int), 1, file);
+		fwrite(&(*monkey)[i]->range, sizeof(int), 1, file);
 		fwrite(&(*monkey)[i]->level, sizeof(int), 1, file);
 	}
 
@@ -260,7 +289,7 @@ void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana
         fread(&(*monkey)[i]->pos.x, sizeof(int), 1, file);
         fread(&(*monkey)[i]->pos.y, sizeof(int), 1, file);
         fread(&(*monkey)[i]->dmg, sizeof(int), 1, file);
-        fread(&(*monkey)[i]->mana, sizeof(int), 1, file);
+        fread(&(*monkey)[i]->range, sizeof(int), 1, file);
         fread(&(*monkey)[i]->level, sizeof(int), 1, file);
     }
 
@@ -271,36 +300,46 @@ void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** cr
     // Game logic goes here
     int i = -1;
     printf("King Flower HP: %d\n", King_Monkey_Pv);
-        while(1){  // Limit to 100 iterations for safety
+        while(1){
             i++;
             int choice = choose(); // Call the choose function
-            if (choice == 2) {
+            if (choice == 1) {
                 char* output_file = "test_output.txt";
              	save_in_file(&t, &size, size_c, size_m, &banana, &crab, &monkey, &size_pos, &King_Monkey_Pv, output_file);
              	system("make");
-                break; // Exit the game loop if the user chooses to save
+                break; // Returns the player to the start menu
             }
+            
             if( i%3 == 0){ 
                 crab[*size_c] = create_attacker(size_pos);
                 posInitCrabs(t, size, crab[*size_c]);
                 (*size_c)++;
                 i = 0; // Reset i to 0 after adding a crab
             }
-
+            
             showPath(t, size);
-            if (*size_c > 0) {  // Simplified condition
-
-               money(crab, monkey, size_c, size_m, &banana, t);
-              
-            }
-
-            tree(&banana, size_m, t, size, monkey);
-            for(int j = 0; j < *size_c; j++){
+            
+            
+            tree(&banana,size_m,t,size,monkey);
+            
+            
+            
+            for(int j = 0; j <= *size_c; j++){
                 if (crab[j] != NULL) {
                     mooveCrabs(t, size, crab[j],*p, size_pos);
                     verifyWinCrab(crab,j, size, t,&King_Monkey_Pv);
                 }
+                
             }
+            
+            if (*size_c > 0) {  // Simplified condition
+               money(crab, monkey, size_c, size_m, &banana, t);
+            }
+            
+            
+            verifyWinDefender(crab,*size_c);
+            
+            
 
     }
 }
