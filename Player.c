@@ -201,15 +201,21 @@ Defender* posTulip(int** map, int size) {
                 if (newX >= 0 && newX < size && newY >= 0 && newY < size) {
                     if (newX == 0 && (map[newY][newX] == 100 || map[newY][newX] == 10)) {
                         printf("Cannot place tulip adjacent to spawn point.\n");
-                        exit(14);
+                        exit(15);
                     }
                 }
             }
         }
 
         // Check if the position is adjacent to another monkey or crab
-        if ((y > 0 && map[y-1][x] == 1) || (y < size-1 && map[y+1][x] == 1) || 
-            (x > 0 && map[y][x-1] == 1) || (x < size-1 && map[y][x+1] == 1)) {
+        if ((y > 0 && map[y-1][x] == 1) ||                    // North
+            (y < size-1 && map[y+1][x] == 1) ||               // South
+            (x > 0 && map[y][x-1] == 1) ||                    // West
+            (x < size-1 && map[y][x+1] == 1) ||               // East
+            (y > 0 && x > 0 && map[y-1][x-1] == 1) ||        // Northwest
+            (y > 0 && x < size-1 && map[y-1][x+1] == 1) ||   // Northeast
+            (y < size-1 && x > 0 && map[y+1][x-1] == 1) ||   // Southwest
+            (y < size-1 && x < size-1 && map[y+1][x+1] == 1)) {
             map[y][x] = 2;
             monkey->pos.x = x;
             monkey->pos.y = y;
@@ -219,7 +225,7 @@ Defender* posTulip(int** map, int size) {
 
         // If the position is not valid, free the memory and exit
         printf("Tulip cannot be placed here.\n");
-        exit(14);
+        exit(16);
     }
 }
 
@@ -446,7 +452,7 @@ void Let_s_the_show_beggin(){
     int k_hp;
     Attacker** crab = NULL;
     Defender** monkey = NULL;
-    int score;
+    int score = 0;
 
     int what_a_choise = menu();
     switch (what_a_choise) {

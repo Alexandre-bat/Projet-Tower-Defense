@@ -172,6 +172,8 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV,
             printf("The King Monkey has lost 1 HP! and have %d PV\n", *PV);
             if( *PV <= 0) {
                 printf("Game Over! The King Monkey has been defeated!\n");
+                printf(" Go back to the menu ...\n");
+                sleep(3);
                 *j = 1;
             }
             map[crab[i]->pos.y][crab[i]->pos.x] = -1; // Mark the end
