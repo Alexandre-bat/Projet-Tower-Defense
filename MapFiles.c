@@ -296,11 +296,10 @@ void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* money,
 
 void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv, int score) {
     // Game logic goes here
-    int i = -1;
+    int i = 0;
     printf("King Flower HP: %d\n", King_Monkey_Pv);
     int k = 0;
         while(k == 0){
-            i++;
             int choice = choose(); // Call the choose function
             if (choice == 1) {
                 char* output_file = "test_output.txt";
@@ -313,11 +312,8 @@ void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** cra
                 crab[*size_c] = create_attacker(size_pos);
                 posInitBee(t, size, crab[*size_c]);
                 (*size_c)++;
-                i = 0; // Reset i to 0 after adding a crab
             }
-            
-            showPath(t, size);
-            printf("\n========== SCORE : %2d ==========\n", score);
+            i++;
             
             tree(&money,size_m,t,size,monkey);
             
@@ -333,12 +329,18 @@ void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** cra
                 }
                 
             }
+            system("clear");
+            printf("\n========== ROUND : %2d ==========\n", i);
+            showPath(t, size);
+            printf("\n========== SCORE : %2d ==========\n", score);
+            
             printf("\n========== BEE : %2d ===========\n", *size_c);
             if (*size_c > 0) {  // Simplified condition
                Dollars(crab, monkey, size_c, size_m, &money, t, &score);
             }else{ 
               k+=1; 
               printf("Victory! All crabs have been defeated!\n");// End of the game 
+              sleep(3);
               }
             
           }        

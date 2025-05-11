@@ -333,6 +333,7 @@ void tree(int* money, int* m, int** t, int size, Defender** tulip) {
     
     if(*money < 2) {
         printf("\n⚠️  You have no money or no tulip!\n");
+        sleep(2);
         return;
     }
     
@@ -360,6 +361,7 @@ void tree(int* money, int* m, int** t, int size, Defender** tulip) {
                 }
             } else {
                 printf("\n❌ Not enough money!\n"); 
+                sleep(2);
             }
             break;
 
@@ -386,23 +388,36 @@ void tree(int* money, int* m, int** t, int size, Defender** tulip) {
                     
                     switch(upgrade_choice) {
                         case 1:
+                            if( tulip[tulip_id]->range++ > 3){
+                              printf("This tulip is already very strong");
+                              break;
+                            }
                             tulip[tulip_id]->range++;
                             *money -= 3;
                             printf("✅ Range increased to %d\n", tulip[tulip_id]->range);
+                            sleep(1);
                             break;
                         case 2:
-                            tulip[tulip_id]->dmg++;
-                            *money -= 3;
-                            printf("✅ Damage increased to %d\n", tulip[tulip_id]->dmg);
-                            break;
+                        if( tulip[tulip_id]->dmg++ > 4){
+                              printf("This tulip is already very strong");
+                              break;
+                            }
+                        tulip[tulip_id]->dmg++;
+                        *money -= 3;
+                        printf("✅ Damage increased to %d\n", tulip[tulip_id]->dmg);
+                        sleep(1);
+                        break;
                         default:
                             printf("❌ Invalid upgrade choice\n");
+                            sleep(2);
                     }
                 } else {
                     printf("❌ Invalid tulip ID\n");
+                    sleep(2);
                 }
             } else {
                 printf("\n❌ Not enough money or no tulips to upgrade!\n");
+                sleep(2);
             }
             break;
 
@@ -471,6 +486,7 @@ void Let_s_the_show_beggin(){
             fclose(test);
             int money;
             load_from_file(&t, &size, &size_c, &size_m, &money, &crab, &monkey, &size_pos, &k_hp , &score, output_file);
+            showPath(t,size);
             game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp, score);
             free(crab);
             free(monkey);
