@@ -469,9 +469,34 @@ void Let_s_the_show_beggin(){
         	
             k_hp = King_HP();
             game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp, score);
+            // Free position array
+            free(pos);
+            pos = NULL;
+
+            // Free each crab and the crab array
+            for (int i = 0; i < size_c; i++) {
+                if (crab[i] != NULL) {
+                    free(crab[i]);
+                }
+            }
             free(crab);
+            crab = NULL;
+
+            // Free each monkey and the monkey array
+            for (int i = 0; i < size_m; i++) {
+                if (monkey[i] != NULL) {
+                    free(monkey[i]);
+                }
+            }
             free(monkey);
+            monkey = NULL;
+
+            // Free each row of the map and then the map itself
+            for (int i = 0; i < size; i++) {
+                free(t[i]);
+            }
             free(t);
+            t = NULL;
             system("make"); 
             break;
         case 2:
@@ -488,9 +513,34 @@ void Let_s_the_show_beggin(){
             load_from_file(&t, &size, &size_c, &size_m, &money, &crab, &monkey, &size_pos, &k_hp , &score, output_file);
             showPath(t,size);
             game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp, score);
+            // Free position array
+            free(pos);
+            pos = NULL;
+
+            // Free each crab and the crab array
+            for (int i = 0; i < size_c; i++) {
+                if (crab[i] != NULL) {
+                    free(crab[i]);
+                }
+            }
             free(crab);
+            crab = NULL;
+
+            // Free each monkey and the monkey array
+            for (int i = 0; i < size_m; i++) {
+                if (monkey[i] != NULL) {
+                    free(monkey[i]);
+                }
+            }
             free(monkey);
+            monkey = NULL;
+
+            // Free each row of the map and then the map itself
+            for (int i = 0; i < size; i++) {
+                free(t[i]);
+            }
             free(t);
+            t = NULL;
             system("make"); 
             break;
         case 3:
