@@ -30,8 +30,10 @@ int King_HP() {
         }
     }
 
-    printf("Error reading input.\n");
-    exit(15);
+    printf("Error reading input.\n Back to menu...\n");
+    sleep(3);
+    system("make");
+    return 0;
 }
 
 
@@ -39,9 +41,12 @@ int choose() {
     char input[50];
     int c;
 
-    printf("Choose an option:\n");
-    printf("    0. Continue\n");
-    printf("    1. Save\n");
+    printf("\n  ╔════════════════════════╗\n");
+    printf("  ║      GAME MENU         ║\n");
+    printf("  ╠════════════════════════╣\n");
+    printf("  ║  0. Continue           ║\n");
+    printf("  ║  1. Save               ║\n");
+    printf("  ╚════════════════════════╝\n");
     printf("Enter your choice: ");
 
     if (fgets(input, sizeof(input), stdin)) {
@@ -50,58 +55,60 @@ int choose() {
                 case 0:
                     return 0;
                 case 1:
-                    printf("Game saved.\n"); // To do: implement save functionality
+                    printf("\n✓ Game saved successfully.\n");
                     return 1;
                 default:
-                    printf("Invalid choice. Please try again.\n"); // Invalid choice handling
+                    printf("\n✗ Invalid choice. Please try again.\n");
                     return choose();
             }
         } else {
-            printf("Invalid input. Please enter a number.\n"); // Input parsing error handling
+            printf("\n✗ Invalid input. Please enter a number.\n");
             return choose();
         }
     }
 
-    //Case: fgets fails (EOF or error)
-    printf("fgets doesn't work");
+    printf("\n✗ Error reading input\n");
     return 2;
 }
 
 
+
 int menu() {
-    char input[50];  // buffer for read the line
+    char input[50];
     int choice;
 
-    printf("Choose an option:\n");
-    printf("    1. Start Game\n");
-    printf("    2. Save\n");
-    printf("    3. Exit\n");
+    printf("\n  ╔═══════════════════════╗\n");
+    printf("  ║      MAIN MENU        ║\n");
+    printf("  ╠═══════════════════════╣\n");
+    printf("  ║  1. Start Game        ║\n");
+    printf("  ║  2. Save              ║\n");
+    printf("  ║  3. Exit              ║\n");
+    printf("  ╚═══════════════════════╝\n");
     printf("Enter your choice: ");
 
     if (fgets(input, sizeof(input), stdin)) {
         if (sscanf(input, "%d", &choice) == 1) {
             switch (choice) {
                 case 1:
-                    printf("Let the show begin!\n"); // To do: implement game start functionality
+                    printf("\n➤ Let the show begin!\n");
                     return 1;
                 case 2:
                     return 2;
                 case 3:
-                    printf("Au revoir"); // To do: implement exit functionality
+                    printf("\n➤ Au revoir\n");
                     return 3;
                 default:
-                    printf("Invalid choice. Please try again.\n"); // Invalid choice handling
+                    printf("\n❌ Invalid choice. Please try again.\n");
                     return menu();
             }
         } else {
-            printf("Invalid input. Please enter a number.\n"); // Input parsing error handling
+            printf("\n❌ Invalid input. Please enter a number.\n");
             return menu();
         }
     }
 
-    //Case: fgets fails (EOF or error)
-    printf("fgets doesn't work");
-    return 3;
+    printf("\n❌ Error reading input\n");
+    return 4;
 }
 
 // Function to create a new defender
@@ -133,13 +140,14 @@ Attacker* create_attacker(){
     }
 
     new_attacker->dmg = 1;
-    new_attacker->hp = 3;
+    new_attacker->hp = 4;
     new_attacker->level = 0;
     return new_attacker;
 }
 
 
-Defender* posMonkey(int** map, int size) {
+
+Defender* posTulip(int** map, int size) {
     Defender* monkey = create_defender();
     if (monkey == NULL) return NULL;
     int x, y;
@@ -149,8 +157,8 @@ Defender* posMonkey(int** map, int size) {
         scanf("%d", &x); 
         x -= 1;
         // Validate the input for x
-        if (x <= 0 || x > size - 1) { 
-            printf("Position must be between 2 and %d.\n", size);
+        if (x < 0 || x > size - 1) { 
+            printf("Position must be between 1 and %d.\n", size);
             free(monkey);
             exit(11);
         }
@@ -173,9 +181,29 @@ Defender* posMonkey(int** map, int size) {
         }
 
         // Check if the position is too close to the crab spawn point
-        if (x <= monkey->range) {
-            printf("Cannot place monkey too close to crab spawn point.\n");
-            exit(14);
+        if (x >= 0 && y >= 0 && x < size && y < size) {
+            // Check if position is near spawn point (x=0)
+            int dy[] = {-1, -1, -1, 0, 0, 1, 1, 1};  // Vertical offsets
+            int dx[] = {-1, 0, 1, -1, 1, -1, 0, 1};  // Horizontal offsets
+            
+            // Check current position
+            if (map[y][x] == 100 || map[y][x] == 10) {
+                printf("Cannot place tulip on spawn point.\n");
+                exit(14);
+            }
+            
+            // Check all adjacent positions
+            for (int i = 0; i < 8; i++) {
+                int newY = y + dy[i];
+                int newX = x + dx[i];
+                
+                if (newX >= 0 && newX < size && newY >= 0 && newY < size) {
+                    if (newX == 0 && (map[newY][newX] == 100 || map[newY][newX] == 10)) {
+                        printf("Cannot place tulip adjacent to spawn point.\n");
+                        exit(14);
+                    }
+                }
+            }
         }
 
         // Check if the position is adjacent to another monkey or crab
@@ -195,17 +223,18 @@ Defender* posMonkey(int** map, int size) {
 }
 
 
-void posInitCrabs(int** map, int size, Attacker* crab) {
+
+void posInitBee(int** map, int size, Attacker* crab) {
     // Check if the crab is valid
     if (crab == NULL) {
         printf("Crab is NULL. Cannot initialize.\n");
-        exit(17);
+        exit(6); 
     }
     for (int i = 0; i < size; i++) {
         if (map[i][0] == 100 || map[i][0] == 1) {
         if(map[i][1] == 10){
             printf("Can't put a crab here.\n");
-            exit(18);
+            exit(5); 
         }
             map[i][0] = 10;
             crab->pos.x = 0;
@@ -215,11 +244,11 @@ void posInitCrabs(int** map, int size, Attacker* crab) {
         }
     }
     printf("No valid starting point for crab. Releasing memory.\n");
-    exit(16);
+    exit(4); 
 }
 
 
-void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos) {
+void mooveBee( int** map, int size, Attacker* crab, Position* p, int size_pos) {
     if (crab == NULL) return;  // Check if crab is valid
     if(p == NULL) return;  // Check if position array is valid 
     if(size_pos <= 0) return;  // Check if position array size is valid
@@ -227,8 +256,12 @@ void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos)
 
     // Check current crab position (ensure it's not out of bounds)
     if (map[crab->pos.y][crab->pos.x] == 10) {
+        
         // If position is valid, make the change
         map[crab->pos.y][crab->pos.x] = 1;  // Remove crab from current position
+        if (crab->pos.x == 0) {
+            map[crab->pos.y][crab->pos.x] = 100;  // Restore starting point
+        }
     }
     
     // Check if next position is within bounds
@@ -238,23 +271,10 @@ void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos)
         crab->pos.y = p[l].y;
         crab->level++;  // Increment crab level
 
-        // If crab reaches end of level (victory conditions)
-        if (crab->pos.x == size -1 && map[crab->pos.y][crab->pos.x + 1] == 100) {
-            map[crab->pos.y][crab->pos.x] = 0;  // Remove crab from map
-            free(crab);  // Free crab memory
-            crab = NULL;  // Set pointer to NULL
-            return;  // Exit function
-        }
-
-        // Restore old position if it was a starting point (101)
-        if (map[crab->pos.y][crab->pos.x] == 0 && crab->pos.x == 0) {
-            map[crab->pos.y][crab->pos.x] = 101;  // Restore starting point
-        }
-
-        // Update new crab position on map
-        if (map[crab->pos.y][crab->pos.x] != 10) {
-            map[crab->pos.y][crab->pos.x] = 10;  // Mark current position with "10" for crab
-        }
+    // Update new crab position on map
+    if (map[crab->pos.y][crab->pos.x] != 10) {
+          map[crab->pos.y][crab->pos.x] = 10;  // Mark current position with "10" for crab
+      }
         
     } else {
         printf("Moving conditions: level %d < size %d, pos(%d,%d) within [0,%d]\n", 
@@ -264,7 +284,7 @@ void mooveCrabs( int** map, int size, Attacker* crab, Position* p, int size_pos)
 }
 
 
-void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, int** map) {
+void Dollars(Attacker** c, Defender** p, int* size_c, int* size_m, int* money, int** map) {
     if (*size_c == 0 || *size_m == 0) return;
     for (int i = 0; i < *size_m; i++) {
         if (p[i] == NULL) continue;  // ⚠️ Crash protection
@@ -287,7 +307,10 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
                 printf("Crab %d is attacked by monkey %d; HP: %d\n", j, i, c[j]->hp);
                 if (c[j]->hp <= 0) {
                     map[n][o] = 1;
-                    (*banana) += 2;
+                    if( o == 1 ){
+                      map[n][o] = 101;
+                    }
+                    (*money) += 2;
                     free(c[j]);
                     c[j] = NULL; // ⚠️ Crash protection
                     for (int k = j; k < *size_c - 1; k++) {
@@ -303,76 +326,94 @@ void money(Attacker** c, Defender** p, int* size_c, int* size_m, int* banana, in
     }
 }
 
-// Function to display the tree menu for buying/upgrading monkeys
-void tree(int* banana, int* m, int** t, int size, Defender** monkey) {
+void tree(int* money, int* m, int** t, int size, Defender** tulip) {
     int choice;
-    if(*banana <= 0 && *m == 0) {
-        printf("You have no bananas or no defender!\n");
+    printf("\n========== TULIP SHOP ==========\n");
+    
+    if(*money < 2) {
+        printf("\n⚠️  You have no money or no tulip!\n");
+        return;
     }
-    printf("You have %d bananas\n", *banana);
-    printf("What would you like to do?\n");
-    printf("1. Buy new monkey (2 bananas)\n");
-    printf("2. Upgrade existing monkey (3 bananas)\n");
-    printf("0. Skip\n");
+    
+    printf("\n Current money: %d\n", *money);
+    printf("\nAvailable actions:\n");
+    printf("---------------------------\n");
+    printf("1. 🌷 Buy new tulip    (2 dollars)\n");
+    printf("2. ⭐ Upgrade tulip    (3 dollars)\n");
+    printf("0. ➡️  Skip\n");
+    printf("---------------------------\n");
     printf("Enter your choice: ");
+    
     scanf("%d", &choice);
     clear_input_buffer();
-    switch(choice) { // Handle user choice
+    
+    switch(choice) {
         case 1: 
-            if((*banana) >= 2) {
-                monkey[*m] = posMonkey(t, size); // Create a new monkey
-                if(monkey[*m] != NULL) {
-                    *banana -= 2;
+            if((*money) >= 2) {
+                printf("\n=== BUYING NEW TULIP ===\n");
+                tulip[*m] = posTulip(t, size);
+                if(tulip[*m] != NULL) {
+                    *money -= 2;
                     (*m)++;
+                    printf("✅ New tulip successfully added!\n");
                 }
             } else {
-                printf("Not enough bananas!\n"); 
+                printf("\n❌ Not enough money!\n"); 
             }
             break;
 
         case 2:
-            if(*banana >= 3 && *m > 0) {
-                int monkey_id;
-                printf("Which monkey do you want to upgrade? (1-%d): ", *m);
-                scanf("%d", &monkey_id);
-                monkey_id--; // Convert to 0-based index
+            if(*money >= 3 && *m > 0) {
+                printf("\n=== UPGRADE TULIP ===\n");
+                int tulip_id;
+                printf("Which tulip to upgrade? (1-%d): ", *m);
+                scanf("%d", &tulip_id);
+                tulip_id--;
                 clear_input_buffer();
-                if(monkey_id >= 0 && monkey_id < *m && monkey[monkey_id] != NULL) { // Check if monkey exists
-                    printf("What do you want to upgrade?\n");
-                    printf("1. Range (current: %d)\n", monkey[monkey_id]->range);
-                    printf("2. Damage (current: %d)\n", monkey[monkey_id]->dmg);
+                
+                if(tulip_id >= 0 && tulip_id < *m && tulip[tulip_id] != NULL) {
+                    printf("\nUpgrade options:\n");
+                    printf("---------------------------\n");
+                    printf("1. 🎯 Range (current: %d)\n", tulip[tulip_id]->range);
+                    printf("2. 💪 Damage (current: %d)\n", tulip[tulip_id]->dmg);
+                    printf("---------------------------\n");
                     printf("Enter your choice: ");
+                    
                     int upgrade_choice;
                     scanf("%d",&upgrade_choice);
                     clear_input_buffer();
+                    
                     switch(upgrade_choice) {
                         case 1:
-                            monkey[monkey_id]->range++;
-                            *banana -= 3;
-                            printf("Range increased to %d\n", monkey[monkey_id]->range);
+                            tulip[tulip_id]->range++;
+                            *money -= 3;
+                            printf("✅ Range increased to %d\n", tulip[tulip_id]->range);
                             break;
                         case 2:
-                            monkey[monkey_id]->dmg++;
-                            *banana -= 3;
+                            tulip[tulip_id]->dmg++;
+                            *money -= 3;
+                            printf("✅ Damage increased to %d\n", tulip[tulip_id]->dmg);
                             break;
                         default:
-                            printf("Invalid upgrade choice\n");
+                            printf("❌ Invalid upgrade choice\n");
                     }
                 } else {
-                    printf("Invalid monkey ID\n");
+                    printf("❌ Invalid tulip ID\n");
                 }
             } else {
-                printf("Not enough bananas or no monkeys to upgrade!\n");
+                printf("\n❌ Not enough money or no tulips to upgrade!\n");
             }
             break;
 
         case 0:
+            printf("\n➡️ Skipping shop...\n");
             break;
 
         default:
-            printf("Invalid choice\n");
+            printf("\n❌ Invalid choice\n");
             break;
     }
+    printf("\n================================\n");
 }
 
 
@@ -380,7 +421,7 @@ void Let_s_the_show_beggin(){
     srand(time(NULL));  // Initialize random seed
 
     int size = 0;
-    int banana = 4;
+    int money = 3;
     int size_c = 0;  // Size of crab array
     int size_m = 0;  // Size of monkey array
     Position* pos = NULL;
@@ -396,75 +437,46 @@ void Let_s_the_show_beggin(){
             size_pos = 0; // Size of the position array
         
             t = generatePath(&size,&pos, &size_pos);
-            if (t == NULL) { printf("Memory allocation failed\n"); exit(6);}
+            if (t == NULL) { printf("Memory allocation failed\n"); exit(1);}
+            
+            showPath(t,size);
+        
         
             const int MAX_UNITS = 1000;
         
             crab = malloc(sizeof(Attacker*) * MAX_UNITS);
-            if (crab == NULL ) { printf("Erreur allocation crab\n"); exit(7); }
+            if (crab == NULL ) { printf("Erreur allocation crab\n"); exit(2); }
         
             monkey = malloc(sizeof(Defender*) * MAX_UNITS);
-            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); exit(8); }
+            if (monkey == NULL ) { printf("Erreur allocation monkey\n"); exit(3); }
         	
             k_hp = King_HP();
-            game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos, k_hp);
-
-            for (int i = 0; i < size_c; i++) {
-                if (crab[i] != NULL) {
-                    free(crab[i]);
-                }
-            }
+            game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp);
             free(crab);
-        
-            // Free the monkeys
-            for (int i = 0; i < size_m; i++) {
-                if (monkey[i] != NULL) {
-                    free(monkey[i]);
-                }
-            }
             free(monkey);
-        
-            // Free the map
-            for (int i = 0; i < size; i++) {
-                free(t[i]);
-            }
             free(t);
+            system("make"); 
             break;
         case 2:
             // Call the save function here
             char* output_file = "test_output.txt";
             FILE* test = fopen(output_file, "r");
             if (test == NULL) {
-                printf("Save file doesn't exist. Starting new game...\n");
-                exit(9);
+                printf("Save file doesn't exist.\n Back to menu...\n");
+                sleep(3);
+                system("make");
             }
             fclose(test);
-            int banana;
-            load_from_file(&t, &size, &size_c, &size_m, &banana, &crab, &monkey, &size_pos, &k_hp , output_file);
-            game(t, size, &size_c, &size_m, banana, crab, monkey, size_pos, &pos, k_hp );
-            for (int i = 0; i < size_c; i++) {
-                if (crab[i] != NULL) {
-                    free(crab[i]);
-                }
-            }
+            int money;
+            load_from_file(&t, &size, &size_c, &size_m, &money, &crab, &monkey, &size_pos, &k_hp , output_file);
+            game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp );
             free(crab);
-        
-            // Free the monkeys
-            for (int i = 0; i < size_m; i++) {
-                if (monkey[i] != NULL) {
-                    free(monkey[i]);
-                }
-            }
             free(monkey);
-        
-            // Free the map
-            for (int i = 0; i < size; i++) {
-                free(t[i]);
-            }
             free(t);
+            system("make"); 
             break;
         case 3:
-            exit(10);
+            break;
         default:
             printf("Invalid choice. Please try again.\n");
             menu();

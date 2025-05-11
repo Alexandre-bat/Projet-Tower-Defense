@@ -7,8 +7,9 @@ int** generatePath(int* s, Position** pos, int* sizeofpos) {
     scanf("%d", &size);
     clear_input_buffer();
     if (size < 11 || size > 51) {
-        printf("Size must be between 11 and 99.\n");
-        exit(1);
+        printf("Size must be between 11 and 99.\n Back to menu...\n");
+        sleep(3);
+        system("make");
     }
     // Get size 
     *s = size;
@@ -17,14 +18,18 @@ int** generatePath(int* s, Position** pos, int* sizeofpos) {
     int** grid = malloc(size * sizeof(int*));
     if (grid == NULL) {
         printf("Erreur d'allocation mémoire.\n");
-        exit(2);
+        printf("Back to menu...\n");
+        sleep(3);
+        system("make");
     }
 
     for (int i = 0; i < size; i++) {
         grid[i] = malloc(size * sizeof(int));
         if (grid[i] == NULL) {
             printf("Erreur d'allocation mémoire pour la ligne %d.\n", i);
-            exit(3);
+            printf("Back to menu...\n");
+            sleep(3);
+            system("make");
         }
     }
     // Creat **grid for stock the path
@@ -99,7 +104,10 @@ int** generatePath(int* s, Position** pos, int* sizeofpos) {
     *pos = malloc(sizeof(Position) * (*sizeofpos));
     if (*pos == NULL) {
         printf("Memory allocation error for positions.\n");
-        exit(4);
+        printf("Back to menu...\n");
+        sleep(3);
+        free(grid);
+        system("make");
         }
         
     // Copy posBis positions to *pos
@@ -114,57 +122,57 @@ int** generatePath(int* s, Position** pos, int* sizeofpos) {
 }
 
 
-void showPath(int** grid, int size) {int back;
-    srand(time(NULL));
-printf("O  ");
-for (int i = 1; i < size+1; i++){
-    printf("%2d  ",i);
+void showPath(int** grid, int size) {
+  int back;
+  srand(time(NULL));
+  printf("O  ");
+  for (int i = 1; i < size+1; i++){
+      printf("%2d  ",i);
+  }
+
+  //Show the path with the emojis
+  for (int i = 0; i < size; i++) {
+      printf("\n%2d ",i+1);
+      for (int j = 0; j < size; j++) {
+          if(j == 0 && grid[i][0] == 100){
+              printf("\xF0\x9F\x86\x96  ");
+          }else if(j == size-1 && grid[i][size-1] == -1){
+              printf("\xF0\x9F\x8C\xBA  ");
+          }else if (grid[i][j] == 1) {
+              printf("\xF0\x9F\x94\xB4  ");
+          }else if(grid[i][j] == 2){
+              printf("\xF0\x9F\x8C\xB7  ");
+          }else if( grid[i][j] == 10){
+              printf("\xF0\x9F\x90\x9D  ");
+          }else {
+                  back=rand()%5;
+                  if (back == 0) {
+                          printf("\xF0\x9F\x8D\x84  ");
+                  }else if (back == 1) {
+                          printf("\xF0\x9F\x8D\x80  ");
+                  }else if (back == 2) {
+                          printf("\xF0\x9F\x8C\xB2  ");
+                  }else if (back == 3) {
+                          printf("\xF0\x9F\x8C\xB3  "); 	
+                  }else{
+                          printf("\xE2\x97\xBD  "); 	
+                  }
+
+          }
+      }
+      printf("\n");
+  }
 }
 
-//Show the path with the emojis
-for (int i = 0; i < size; i++) {
-    printf("\n%2d ",i+1);
-    for (int j = 0; j < size; j++) {
-        if(j == 0 && grid[i][0] == 100){
-            printf("\xF0\x9F\x86\x96  ");
-        }else if(j == size-1 && grid[i][size-1] == -1){
-            printf("\xF0\x9F\x8C\xBA  ");
-        }else if (grid[i][j] == 1) {
-            printf("\xF0\x9F\x94\xB4  ");
-        }else if(grid[i][j] == 2){
-            printf("\xF0\x9F\x8C\xB7  ");
-        }else if( grid[i][j] == 10){
-            printf("\xF0\x9F\x90\x9D  ");
-        }else {
-                back=rand()%5;
-                if (back == 0) {
-                        printf("\xF0\x9F\x8D\x84  ");
-                }else if (back == 1) {
-                        printf("\xF0\x9F\x8D\x80  ");
-                }else if (back == 2) {
-                        printf("\xF0\x9F\x8C\xB2  ");
-                }else if (back == 3) {
-                        printf("\xF0\x9F\x8C\xB3  "); 	
-                }else{
-                        printf("\xE2\x97\xBD  "); 	
-                }
 
-        }
-    }
-    printf("\n");
-}
-}
-
-
-void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV) {
+void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV, int* j) {
     for(int i = 0; i < size_c; i++) {
         if(crab[i] != NULL && crab[i]->pos.x == sizeMap-1) {
             *PV -= 1;
             printf("The King Monkey has lost 1 HP! and have %d PV\n", *PV);
             if( *PV <= 0) {
                 printf("Game Over! The King Monkey has been defeated!\n");
-                system("make");
-                exit(5);
+                *j = 1;
             }
             map[crab[i]->pos.y][crab[i]->pos.x] = -1; // Mark the end
             crab[i] = NULL; // Set pointer to NULL
@@ -176,7 +184,7 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV)
 }
 
 
-void verifyWinDefender(Attacker** crab, int size_c) {
+void verifyWinDefender(Attacker** crab, int size_c, int* j) {
     if (size_c <= 0) return;
 
     for (int i = 0; i < size_c; i++) {
@@ -185,17 +193,16 @@ void verifyWinDefender(Attacker** crab, int size_c) {
         }
     }
 
-    printf("Victory! All crabs have been defeated!\n");
-    system("make");
-    exit(12);  // End of the game
+    printf("Victory! All crabs have been defeated!\n");// End of the game
+    *j = 1;  
 }
 
 
-void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,char* output_file) {
+void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* money, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,char* output_file) {
 	FILE* file = fopen(output_file, "w");
 	if (file == NULL) {
-		perror("File opening error");
-		return;
+		perror("File opening error\n Back to menu...\n");
+		exit(5);
 	}
 
 	fwrite(size, sizeof(int), 1, file);
@@ -210,7 +217,7 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attack
     // Write the additional integers
 	fwrite(size_c, sizeof(int), 1, file);
 	fwrite(size_m, sizeof(int), 1, file);
-	fwrite(banana, sizeof(int), 1, file);
+	fwrite(money, sizeof(int), 1, file);
 
 	fwrite(size_pos, sizeof(int), 1, file);
 	
@@ -236,11 +243,12 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* banana, Attack
 }
 
 
-void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,char* input_file) {
+void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* money, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,char* input_file) {
     FILE* file = fopen(input_file, "r");
     if (file == NULL) {
-        perror("Error opening file");
-        return;
+      perror("File opening error\n Back to menu...\n");
+      sleep(3);
+      exit(5);
     }
 
     // Read 'size' of t
@@ -257,7 +265,7 @@ void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana
         int sub_size;
         fread(&sub_size, sizeof(int), 1, file);  // Sub-array size
         if (sub_size != *size) {
-            perror("Incohérence dans la taille des sous-tableaux");
+            perror("Inconsistent sub-table sizes\n");
             return;
         }
         for (int j = 0; j < *size; j++) {
@@ -268,7 +276,7 @@ void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana
     // Read the additional integers
     fread(size_c, sizeof(int), 1, file);
     fread(size_m, sizeof(int), 1, file);
-    fread(banana, sizeof(int), 1, file);
+    fread(money, sizeof(int), 1, file);
 
     // Read the crab (Attacker) and monkey (Defender) tables
     fread(size_pos, sizeof(int), 1, file);
@@ -299,23 +307,24 @@ void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* banana
 }
 
 
-void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv) {
+void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv) {
     // Game logic goes here
     int i = -1;
     printf("King Flower HP: %d\n", King_Monkey_Pv);
-        while(1){
+    int k = 0;
+        while(k == 0){
             i++;
             int choice = choose(); // Call the choose function
             if (choice == 1) {
                 char* output_file = "test_output.txt";
-             	save_in_file(&t, &size, size_c, size_m, &banana, &crab, &monkey, &size_pos, &King_Monkey_Pv, output_file);
-             	system("make");
+             	save_in_file(&t, &size, size_c, size_m, &money, &crab, &monkey, &size_pos, &King_Monkey_Pv, output_file);
+             	k=1;
                 break; // Returns the player to the start menu
             }
             
             if( i%3 == 0){ 
                 crab[*size_c] = create_attacker(size_pos);
-                posInitCrabs(t, size, crab[*size_c]);
+                posInitBee(t, size, crab[*size_c]);
                 (*size_c)++;
                 i = 0; // Reset i to 0 after adding a crab
             }
@@ -323,26 +332,26 @@ void game(int** t, int size, int* size_c, int* size_m, int banana, Attacker** cr
             showPath(t, size);
             
             
-            tree(&banana,size_m,t,size,monkey);
+            tree(&money,size_m,t,size,monkey);
             
             
             
             for(int j = 0; j <= *size_c; j++){
                 if (crab[j] != NULL) {
-                    mooveCrabs(t, size, crab[j],*p, size_pos);
-                    verifyWinCrab(crab,j, size, t,&King_Monkey_Pv);
+                    mooveBee(t, size, crab[j],*p, size_pos);
+                    verifyWinCrab(crab,j, size, t,&King_Monkey_Pv, &k);
+                    if ( k != 0){
+                      break;
+                      }
                 }
                 
             }
             
             if (*size_c > 0) {  // Simplified condition
-               money(crab, monkey, size_c, size_m, &banana, t);
+               Dollars(crab, monkey, size_c, size_m, &money, t);
             }
             
             
-            verifyWinDefender(crab,*size_c);
-            
-            
-
-    }
+            verifyWinDefender(crab,*size_c, &k);
+          }        
 }
