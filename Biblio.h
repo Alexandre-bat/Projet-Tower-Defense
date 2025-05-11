@@ -58,7 +58,7 @@ void posInitBee(int** map, int size, Attacker* crab);
 void mooveBee( int** map, int size, Attacker* crab, Position* p, int size_pos);
 
 // Function to make money
-void Dollars(Attacker** c, Defender** p, int* size_c, int* size_m, int* money, int** map);
+void Dollars(Attacker** c, Defender** p, int* size_c, int* size_m, int* money, int** map, int* score);
 
 // Function to place a new a attacker on the map
 void tree(int* money, int* m, int** t, int size, Defender** monkey);
@@ -78,14 +78,12 @@ void showPath(int** grid, int size);
 // Function to verify if the attacker win
 void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV, int* j); 
 
-// Function to verify if the defender win
-void verifyWinDefender(Attacker** crab, int size_c, int* j);
 
 // Function to save the game in a file
-void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* money, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,char* output_file); 
+void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* money, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,int* score,char* output_file); 
 
 // Function to load the game from a file
-void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* money, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,char* input_file);
+void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* money, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,int* score,char* input_file);
 
 // Function to display the game
-void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv);
+void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv, int score);

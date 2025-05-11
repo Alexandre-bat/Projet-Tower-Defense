@@ -55,7 +55,8 @@ int choose() {
                 case 0:
                     return 0;
                 case 1:
-                    printf("\n✓ Game saved successfully.\n");
+                    printf("\n✓ Game saved successfully.\n Back to the menu\n");
+             	    sleep(3);
                     return 1;
                 default:
                     printf("\n✗ Invalid choice. Please try again.\n");
@@ -153,7 +154,7 @@ Defender* posTulip(int** map, int size) {
     int x, y;
 
     while (1) {
-        printf("Enter the position of the monkey (x): ");
+        printf("Enter the position of the tulip (x): ");
         scanf("%d", &x); 
         x -= 1;
         // Validate the input for x
@@ -165,7 +166,7 @@ Defender* posTulip(int** map, int size) {
         
         clear_input_buffer();
         
-        printf("Enter the position of the monkey (y): ");
+        printf("Enter the position of the tulip (y): ");
         scanf("%d", &y); 
         y -= 1;
         // Validate the input for y
@@ -176,7 +177,7 @@ Defender* posTulip(int** map, int size) {
         clear_input_buffer();
         // Check if the position is valid
         if (map[y][x] == 1 || map[y][x] == 2 || map[y][y] == -1) {
-            printf("Can't put a monkey here.\n");
+            printf("Can't put a tulip here.\n");
             exit(13);
         }
 
@@ -212,12 +213,12 @@ Defender* posTulip(int** map, int size) {
             map[y][x] = 2;
             monkey->pos.x = x;
             monkey->pos.y = y;
-            printf("Monkey placed at (%d, %d)\n", x+1, y+1);
+            printf("Tulip placed at (%d, %d)\n", x+1, y+1);
             return monkey;
         }
 
         // If the position is not valid, free the memory and exit
-        printf("Monkey cannot be placed here.\n");
+        printf("Tulip cannot be placed here.\n");
         exit(14);
     }
 }
@@ -266,7 +267,7 @@ void mooveBee( int** map, int size, Attacker* crab, Position* p, int size_pos) {
     
     // Check if next position is within bounds
     if (l < size_pos && p[l].x >= 0 && p[l].y >= 0 && p[l].x < size && p[l].y < size) {
-        printf("Crab moving to x: %d, y: %d\n", p[l].x, p[l].y);
+        printf("Bee moving to x: %d, y: %d\n", p[l].x, p[l].y+1);
         crab->pos.x = p[l].x;  // Update crab position
         crab->pos.y = p[l].y;
         crab->level++;  // Increment crab level
@@ -284,7 +285,7 @@ void mooveBee( int** map, int size, Attacker* crab, Position* p, int size_pos) {
 }
 
 
-void Dollars(Attacker** c, Defender** p, int* size_c, int* size_m, int* money, int** map) {
+void Dollars(Attacker** c, Defender** p, int* size_c, int* size_m, int* money, int** map, int* score) {
     if (*size_c == 0 || *size_m == 0) return;
     for (int i = 0; i < *size_m; i++) {
         if (p[i] == NULL) continue;  // ⚠️ Crash protection
@@ -304,21 +305,21 @@ void Dollars(Attacker** c, Defender** p, int* size_c, int* size_m, int* money, i
             int dy = abs(f - n);
             if (dx <= r && dy <= r) {
                 c[j]->hp -= p[i]->dmg;
-                printf("Crab %d is attacked by monkey %d; HP: %d\n", j, i, c[j]->hp);
+                printf("Bee %d is attacked by tulip %d; HP: %d\n", j, i, c[j]->hp);
                 if (c[j]->hp <= 0) {
-                    map[n][o] = 1;
-                    if( o == 1 ){
-                      map[n][o] = 101;
-                    }
-                    (*money) += 2;
-                    free(c[j]);
-                    c[j] = NULL; // ⚠️ Crash protection
-                    for (int k = j; k < *size_c - 1; k++) {
-                        c[k] = c[k + 1];
-                    }
-                    c[*size_c - 1] = NULL; // Nailify the last element
-                    (*size_c)--;
-                    continue;
+                  (*score)++;
+                  map[n][o] = 1;
+                  if( o == 1 ){
+                    map[n][o] = 101;
+                  }
+                  (*money) ++;
+                  free(c[j]);
+                  for (int k = j; k < *size_c - 1; k++) {
+                      c[k] = c[k + 1];
+                  }
+                  c[*size_c - 1] = NULL; // Nullify the last element
+                  (*size_c)--;
+                  continue;
                 }
             }
             j++;
@@ -430,6 +431,7 @@ void Let_s_the_show_beggin(){
     int k_hp;
     Attacker** crab = NULL;
     Defender** monkey = NULL;
+    int score;
 
     int what_a_choise = menu();
     switch (what_a_choise) {
@@ -451,7 +453,7 @@ void Let_s_the_show_beggin(){
             if (monkey == NULL ) { printf("Erreur allocation monkey\n"); exit(3); }
         	
             k_hp = King_HP();
-            game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp);
+            game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp, score);
             free(crab);
             free(monkey);
             free(t);
@@ -468,8 +470,8 @@ void Let_s_the_show_beggin(){
             }
             fclose(test);
             int money;
-            load_from_file(&t, &size, &size_c, &size_m, &money, &crab, &monkey, &size_pos, &k_hp , output_file);
-            game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp );
+            load_from_file(&t, &size, &size_c, &size_m, &money, &crab, &monkey, &size_pos, &k_hp , &score, output_file);
+            game(t, size, &size_c, &size_m, money, crab, monkey, size_pos, &pos, k_hp, score);
             free(crab);
             free(monkey);
             free(t);

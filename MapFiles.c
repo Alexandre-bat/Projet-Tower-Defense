@@ -184,21 +184,7 @@ void verifyWinCrab(Attacker** crab, int size_c, int sizeMap, int** map, int* PV,
 }
 
 
-void verifyWinDefender(Attacker** crab, int size_c, int* j) {
-    if (size_c <= 0) return;
-
-    for (int i = 0; i < size_c; i++) {
-        if (crab[i] != NULL) {
-            return;  // At least one crab is still alive
-        }
-    }
-
-    printf("Victory! All crabs have been defeated!\n");// End of the game
-    *j = 1;  
-}
-
-
-void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* money, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,char* output_file) {
+void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* money, Attacker*** crab, Defender*** monkey,int* size_pos,int* king_hp,int* score,char* output_file) {
 	FILE* file = fopen(output_file, "w");
 	if (file == NULL) {
 		perror("File opening error\n Back to menu...\n");
@@ -222,6 +208,7 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* money, Attacke
 	fwrite(size_pos, sizeof(int), 1, file);
 	
 	fwrite(king_hp, sizeof(int), 1, file);
+	fwrite(score, sizeof(int), 1, file);
 
 	for (int i = 0; i < *size_c; i++) { // Loop through crab array
 		fwrite(&(*crab)[i]->pos.x, sizeof(int), 1, file);
@@ -243,11 +230,10 @@ void save_in_file(int*** t,int* size,int* size_c,int* size_m,int* money, Attacke
 }
 
 
-void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* money, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,char* input_file) {
+void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* money, Attacker*** crab, Defender*** monkey, int* size_pos,int* king_hp,int* score,char* input_file) {
     FILE* file = fopen(input_file, "r");
     if (file == NULL) {
-      perror("File opening error\n Back to menu...\n");
-      sleep(3);
+      perror("File opening error\n");
       exit(5);
     }
 
@@ -277,6 +263,7 @@ void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* money,
     fread(size_c, sizeof(int), 1, file);
     fread(size_m, sizeof(int), 1, file);
     fread(money, sizeof(int), 1, file);
+    fread(score, sizeof(int), 1, file);
 
     // Read the crab (Attacker) and monkey (Defender) tables
     fread(size_pos, sizeof(int), 1, file);
@@ -307,7 +294,7 @@ void load_from_file( int*** t,  int* size, int* size_c, int* size_m, int* money,
 }
 
 
-void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv) {
+void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** crab, Defender** monkey, int size_pos, Position** p, int King_Monkey_Pv, int score) {
     // Game logic goes here
     int i = -1;
     printf("King Flower HP: %d\n", King_Monkey_Pv);
@@ -317,7 +304,7 @@ void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** cra
             int choice = choose(); // Call the choose function
             if (choice == 1) {
                 char* output_file = "test_output.txt";
-             	save_in_file(&t, &size, size_c, size_m, &money, &crab, &monkey, &size_pos, &King_Monkey_Pv, output_file);
+             	save_in_file(&t, &size, size_c, size_m, &money, &crab, &monkey, &size_pos, &King_Monkey_Pv, &score, output_file);
              	k=1;
                 break; // Returns the player to the start menu
             }
@@ -330,7 +317,7 @@ void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** cra
             }
             
             showPath(t, size);
-            
+            printf("\n========== SCORE : %2d ==========\n", score);
             
             tree(&money,size_m,t,size,monkey);
             
@@ -346,12 +333,13 @@ void game(int** t, int size, int* size_c, int* size_m, int money, Attacker** cra
                 }
                 
             }
-            
+            printf("\n========== BEE : %2d ===========\n", *size_c);
             if (*size_c > 0) {  // Simplified condition
-               Dollars(crab, monkey, size_c, size_m, &money, t);
-            }
+               Dollars(crab, monkey, size_c, size_m, &money, t, &score);
+            }else{ 
+              k+=1; 
+              printf("Victory! All crabs have been defeated!\n");// End of the game 
+              }
             
-            
-            verifyWinDefender(crab,*size_c, &k);
           }        
 }
