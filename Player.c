@@ -460,7 +460,8 @@ void Let_s_the_show_beggin(){
 
     int what_a_choise = menu();
     switch (what_a_choise) {
-        case 1:        
+        case 1:     
+            fclose(test);
             size_pos = 0; // Size of the position array
         
             t = generatePath(&size,&pos, &size_pos);
@@ -551,6 +552,7 @@ void Let_s_the_show_beggin(){
             system("make"); 
             break;
         case 3:
+            fclose(test);
             break;
         default:
             printf("Invalid choice. Please try again.\n");
