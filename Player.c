@@ -454,6 +454,10 @@ void Let_s_the_show_beggin(){
     Defender** monkey = NULL;
     int score = 0;
 
+    // Call the save function here
+    char* output_file = "test_output.txt";
+    FILE* test = fopen(output_file, "r");
+
     int what_a_choise = menu();
     switch (what_a_choise) {
         case 1:        
@@ -506,9 +510,6 @@ void Let_s_the_show_beggin(){
             system("make"); 
             break;
         case 2:
-            // Call the save function here
-            char* output_file = "test_output.txt";
-            FILE* test = fopen(output_file, "r");
             if (test == NULL) {
                 printf("Save file doesn't exist.\n Back to menu...\n");
                 sleep(3);
